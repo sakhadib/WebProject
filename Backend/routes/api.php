@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\AuthController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\User\FollowerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,5 +34,19 @@ Route::group([
     Route::post('logout', [AuthController::class, 'logout'])->name('api.logout');
     Route::post('refresh', [AuthController::class, 'refresh'])->name('api.refresh');
     Route::post('me', [AuthController::class, 'me'])->name('api.me');
+
+});
+
+
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'user'
+
+], function ($router) {
+
+    Route::post('follow', [FollowerController::class, 'follow'])->name('api.user.follow');
+    Route::post('unfollow', [FollowerController::class, 'unfollow'])->name('api.user.unfollow');
+    // Add more user-related routes here
 
 });

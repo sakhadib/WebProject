@@ -65,4 +65,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+
+
+
+    // Additional methods can be added here for user-specific functionality
+
+
 }
