@@ -8,6 +8,7 @@ use App\Http\Controllers\User\FollowerController;
 use App\Http\Controllers\User\SocialMediaController;
 use App\Http\Controllers\Article\CollectionController;
 use App\Http\Controllers\Article\CategoryController;
+use App\Http\Controllers\Article\ArticleController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -78,6 +79,33 @@ Route::group([
     Route::post('categories/add', [CategoryController::class, 'store'])->name('api.article.categories.store');
     Route::get('categories/show/{id}', [CategoryController::class, 'show'])->name('api.article.categories.show');
     Route::post('categories/update/{id}', [CategoryController::class, 'update'])->name('api.article.categories.update');
+});
+
+// Article routes
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'articles'
+], function ($router) {
+    
+    // Public routes (no authentication required)
+    Route::get('/', [ArticleController::class, 'index'])->name('api.articles.index');
+    Route::get('/published', [ArticleController::class, 'published'])->name('api.articles.published');
+    Route::get('/{slug}', [ArticleController::class, 'show'])->name('api.articles.show');
+    
+    // Protected routes (require authentication)
+    Route::middleware('auth:api')->group(function () {
+        // CRUD operations
+        Route::post('/', [ArticleController::class, 'store'])->name('api.articles.store');
+        Route::put('/{id}', [ArticleController::class, 'update'])->name('api.articles.update');
+        Route::delete('/{id}', [ArticleController::class, 'destroy'])->name('api.articles.destroy');
+        
+        // User's articles
+        Route::get('/my/articles', [ArticleController::class, 'myArticles'])->name('api.articles.my-articles');
+        
+        // Status management
+        Route::patch('/{id}/publish', [ArticleController::class, 'publish'])->name('api.articles.publish');
+        Route::patch('/{id}/draft', [ArticleController::class, 'makeDraft'])->name('api.articles.make-draft');
+    });
 });
 
 
