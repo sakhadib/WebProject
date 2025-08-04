@@ -53,5 +53,22 @@ class SocialMediaController extends Controller
             'data' => $socialMedia
         ], 200);
     }
+
+
+    public function delete($id)
+    {
+        $socialMedia = SocialMedia::findOrFail($id);
+
+        // Ensure the social media belongs to the authenticated user
+        if ($socialMedia->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $socialMedia->delete();
+
+        return response()->json([
+            'message' => 'Social media deleted successfully'
+        ], 200);
+    }
     
 }

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\FollowerController;
-
+use App\Http\Controllers\User\SocialMediaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -47,6 +47,7 @@ Route::group([
 
     Route::post('follow', [FollowerController::class, 'follow'])->name('api.user.follow');
     Route::post('unfollow', [FollowerController::class, 'unfollow'])->name('api.user.unfollow');
-    // Add more user-related routes here
-
+    Route::post('socialmedia/add', [SocialMediaController::class, 'create'])->name('api.user.social-media.create');
+    Route::post('socialmedia/update/{id}', [SocialMediaController::class, 'update'])->name('api.user.social-media.update');
+    Route::post('socialmedia/delete/{id}', [SocialMediaController::class, 'delete'])->name('api.user.social-media.delete');
 });

@@ -51,7 +51,6 @@ class FollowerController extends Controller
         ], 200);
     }
 
-
     public function unfollow(Request $request)
     {
         $request->validate([
