@@ -18,4 +18,11 @@ class Collection extends Model
         'is_public',
         'slug',
     ];
+
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class)->select(['id', 'username', 'avatar']);
+    }
 }

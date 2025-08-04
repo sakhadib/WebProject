@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\User\FollowerController;
 use App\Http\Controllers\User\SocialMediaController;
+use App\Http\Controllers\Article\CollectionController;
+use App\Http\Controllers\Article\CategoryController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -51,3 +53,32 @@ Route::group([
     Route::post('socialmedia/update/{id}', [SocialMediaController::class, 'update'])->name('api.user.social-media.update');
     Route::post('socialmedia/delete/{id}', [SocialMediaController::class, 'delete'])->name('api.user.social-media.delete');
 });
+
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'article'
+
+], function ($router) {
+
+    Route::get('collections', [CollectionController::class, 'index'])->name('api.article.collections.index');
+    Route::post('collections/add', [CollectionController::class, 'store'])->name('api.article.collections.store');
+    Route::get('collections/show/{id}', [CollectionController::class, 'show'])->name('api.article.collections.show');
+    Route::post('collections/update/{id}', [CollectionController::class, 'update'])->name('api.article.collections.update');
+    Route::post('collections/delete/{id}', [CollectionController::class, 'destroy'])->name('api.article.collections.destroy');
+});
+
+
+Route::group([
+    'middleware' => ['api'],
+    'prefix' => 'article'
+    // for admins
+], function ($router) {
+    Route::get('categories', [CategoryController::class, 'index'])->name('api.article.categories.index');
+    Route::post('categories/add', [CategoryController::class, 'store'])->name('api.article.categories.store');
+    Route::get('categories/show/{id}', [CategoryController::class, 'show'])->name('api.article.categories.show');
+    Route::post('categories/update/{id}', [CategoryController::class, 'update'])->name('api.article.categories.update');
+});
+
+
+
