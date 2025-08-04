@@ -22,21 +22,49 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Registration logic can be added here
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+        try {
+            // Validate the request
+            $validatedData = $request->validate([
+                'username' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6|confirmed',
+            ]);
 
-        User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+            // Create the user
+            $user = User::create([
+                'username' => $validatedData['username'],
+                'email' => $validatedData['email'],
+                'password' => bcrypt($validatedData['password']),
+            ]);
 
-        // For now, we will just return a success message
-        return response()->json(['message' => 'User registered successfully'], 201);
+            if (!$user) {
+                return response()->json([
+                    'error' => 'Registration failed',
+                    'message' => 'Unable to create user account'
+                ], 500);
+            }
+
+            return response()->json([
+                'message' => 'User registered successfully',
+                'user' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email
+                ]
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'message' => 'The provided data is invalid',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Registration failed',
+                'message' => 'An unexpected error occurred during registration'
+            ], 500);
+        }
     }
 
 
@@ -47,13 +75,36 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->only(['email', 'password']);
+        try {
+            // Validate the request
+            $validatedData = $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+            ]);
 
-        if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            $credentials = $request->only(['email', 'password']);
+
+            if (! $token = auth('api')->attempt($credentials)) {
+                return response()->json([
+                    'error' => 'Unauthorized',
+                    'message' => 'Invalid email or password'
+                ], 401);
+            }
+
+            return $this->respondWithToken($token);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'message' => 'The provided credentials are invalid',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Login failed',
+                'message' => 'An unexpected error occurred during login'
+            ], 500);
         }
-
-        return $this->respondWithToken($token);
     }
 
     /**
@@ -63,7 +114,26 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth('api')->user());
+        try {
+            $user = auth('api')->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'error' => 'Unauthorized',
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            return response()->json([
+                'user' => $user
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to retrieve user',
+                'message' => 'An unexpected error occurred while fetching user data'
+            ], 500);
+        }
     }
 
     /**
@@ -73,9 +143,22 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth('api')->logout();
+        try {
+            $token = JWTAuth::getToken();
+            if ($token) {
+                JWTAuth::invalidate($token);
+            }
 
-        return response()->json(['message' => 'Successfully logged out']);
+            return response()->json([
+                'message' => 'Successfully logged out'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Logout failed',
+                'message' => 'An unexpected error occurred during logout'
+            ], 500);
+        }
     }
 
     /**
@@ -85,7 +168,41 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(JWTAuth::refresh(JWTAuth::getToken()));
+        try {
+            $token = JWTAuth::getToken();
+            
+            if (!$token) {
+                return response()->json([
+                    'error' => 'Token not provided',
+                    'message' => 'No token found in the request'
+                ], 401);
+            }
+
+            $newToken = JWTAuth::refresh($token);
+            
+            return $this->respondWithToken($newToken);
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json([
+                'error' => 'Token expired',
+                'message' => 'The token has expired and cannot be refreshed'
+            ], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json([
+                'error' => 'Token invalid',
+                'message' => 'The provided token is invalid'
+            ], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json([
+                'error' => 'Token refresh failed',
+                'message' => 'Could not refresh the token'
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Refresh failed',
+                'message' => 'An unexpected error occurred during token refresh'
+            ], 500);
+        }
     }
 
     /**
@@ -97,10 +214,21 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60
-        ]);
+        try {
+            $ttl = JWTAuth::factory()->getTTL() * 60;
+            
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => $ttl,
+                'user' => auth('api')->user()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Token generation failed',
+                'message' => 'Could not generate token response'
+            ], 500);
+        }
     }
 }
