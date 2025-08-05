@@ -22,11 +22,11 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api')->except(['index', 'show', 'published']);
+        $this->middleware('auth:api')->except(['index', 'show', 'published', 'articlesByUsername', 'showByUsernameAndSlug']);
     }
 
     /**
-     * Display a listing of articles (public endpoint)
+     * Display a listing of published articles only (public endpoint)
      */
     public function index(Request $request)
     {
@@ -36,14 +36,12 @@ class ArticleController extends Controller
                 'per_page' => 'sometimes|integer|min:1|max:100',
                 'search' => 'sometimes|string|max:255',
                 'category_id' => 'sometimes|integer|exists:categories,id',
-                'user_id' => 'sometimes|integer|exists:users,id',
                 'sort' => 'sometimes|in:latest,oldest,title_asc,title_desc',
             ]);
 
             $perPage = $request->input('per_page', 15);
             $search = $request->input('search');
             $categoryId = $request->input('category_id');
-            $userId = $request->input('user_id');
             $sort = $request->input('sort', 'latest');
 
             $query = Article::with(['user:id,username,email', 'category:id,name'])
@@ -56,10 +54,6 @@ class ArticleController extends Controller
 
             if ($categoryId) {
                 $query->byCategory($categoryId);
-            }
-
-            if ($userId) {
-                $query->byUser($userId);
             }
 
             // Apply sorting
@@ -81,7 +75,7 @@ class ArticleController extends Controller
             $articles = $query->paginate($perPage);
 
             return response()->json([
-                'message' => 'Articles retrieved successfully',
+                'message' => 'Published articles retrieved successfully',
                 'data' => [
                     'articles' => $articles->items(),
                     'pagination' => [
@@ -118,7 +112,6 @@ class ArticleController extends Controller
                 'title' => 'required|string|max:255',
                 'content' => 'required|string',
                 'category_id' => 'sometimes|integer|exists:categories,id',
-                'slug' => 'sometimes|string|max:255|unique:articles,slug',
                 'excerpt' => 'sometimes|string|max:500',
                 'status' => 'sometimes|in:draft,published',
                 'featured_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -132,7 +125,7 @@ class ArticleController extends Controller
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
                 'category_id' => $request->input('category_id'),
-                'slug' => $request->input('slug'),
+                'slug' => Str::slug(Str::limit($request->input('title'), 100, '')) . '-' . time(),
                 'excerpt' => $request->input('excerpt'),
                 'status' => $request->input('status', 'draft'),
             ];
@@ -535,6 +528,178 @@ class ArticleController extends Controller
             return response()->json([
                 'error' => 'Retrieval failed',
                 'message' => 'An unexpected error occurred while retrieving published articles'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all articles by username (public endpoint)
+     */
+    public function articlesByUsername(Request $request, $username)
+    {
+        try {
+            $request->validate([
+                'page' => 'sometimes|integer|min:1',
+                'per_page' => 'sometimes|integer|min:1|max:100',
+                'search' => 'sometimes|string|max:255',
+                'category_id' => 'sometimes|integer|exists:categories,id',
+                'status' => 'sometimes|in:draft,published',
+                'sort' => 'sometimes|in:latest,oldest,title_asc,title_desc',
+            ]);
+
+            // Find user by username
+            $user = User::where('username', $username)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not found',
+                    'message' => 'The specified user does not exist'
+                ], 404);
+            }
+
+            $perPage = $request->input('per_page', 15);
+            $search = $request->input('search');
+            $categoryId = $request->input('category_id');
+            $status = $request->input('status');
+            $sort = $request->input('sort', 'latest');
+
+            $query = Article::with(['user:id,username,email', 'category:id,name'])
+                           ->where('user_id', $user->id);
+
+            // Check if requesting user is the same as the profile user
+            $authenticatedUser = auth('api')->user();
+            $isOwnProfile = $authenticatedUser && $authenticatedUser->id === $user->id;
+
+            // If not own profile, only show published articles
+            if (!$isOwnProfile) {
+                $query->published();
+            } else {
+                // If own profile and status specified, filter by status
+                if ($status) {
+                    $query->byStatus($status);
+                }
+            }
+
+            // Apply filters
+            if ($search) {
+                $query->search($search);
+            }
+
+            if ($categoryId) {
+                $query->byCategory($categoryId);
+            }
+
+            // Apply sorting
+            switch ($sort) {
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                case 'title_asc':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'title_desc':
+                    $query->orderBy('title', 'desc');
+                    break;
+                default: // 'latest'
+                    $query->orderBy('created_at', 'desc');
+                    break;
+            }
+
+            $articles = $query->paginate($perPage);
+
+            $response = [
+                'message' => "Articles by {$user->username} retrieved successfully",
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                    ],
+                    'articles' => $articles->items(),
+                    'pagination' => [
+                        'current_page' => $articles->currentPage(),
+                        'per_page' => $articles->perPage(),
+                        'total' => $articles->total(),
+                        'last_page' => $articles->lastPage(),
+                        'has_more_pages' => $articles->hasMorePages(),
+                    ]
+                ]
+            ];
+
+            // Add stats if viewing own profile
+            if ($isOwnProfile) {
+                $response['data']['stats'] = [
+                    'total_articles' => Article::where('user_id', $user->id)->count(),
+                    'published_articles' => Article::where('user_id', $user->id)->published()->count(),
+                    'draft_articles' => Article::where('user_id', $user->id)->draft()->count(),
+                ];
+            }
+
+            return response()->json($response, 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'message' => 'Invalid query parameters',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Retrieval failed',
+                'message' => 'An unexpected error occurred while retrieving user articles'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get a specific article by username and slug (public endpoint)
+     */
+    public function showByUsernameAndSlug($username, $slug)
+    {
+        try {
+            // Find user by username
+            $user = User::where('username', $username)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not found',
+                    'message' => 'The specified user does not exist'
+                ], 404);
+            }
+
+            // Check if requesting user is the same as the article owner
+            $authenticatedUser = auth('api')->user();
+            $isOwnProfile = $authenticatedUser && $authenticatedUser->id === $user->id;
+
+            $query = Article::with(['user:id,username,email', 'category:id,name'])
+                           ->where('slug', $slug)
+                           ->where('user_id', $user->id);
+
+            // If not own profile, only show published articles
+            if (!$isOwnProfile) {
+                $query->published();
+            }
+
+            $article = $query->first();
+
+            if (!$article) {
+                return response()->json([
+                    'error' => 'Article not found',
+                    'message' => 'The specified article does not exist or is not accessible'
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Article retrieved successfully',
+                'data' => [
+                    'article' => $article
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Retrieval failed',
+                'message' => 'An unexpected error occurred while retrieving the article'
             ], 500);
         }
     }

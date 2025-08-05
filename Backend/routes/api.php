@@ -90,13 +90,15 @@ Route::group([
     // Public routes (no authentication required)
     Route::get('/', [ArticleController::class, 'index'])->name('api.articles.index');
     Route::get('/published', [ArticleController::class, 'published'])->name('api.articles.published');
+    Route::get('/@{username}', [ArticleController::class, 'articlesByUsername'])->name('api.articles.by-username');
+    Route::get('/@{username}/{slug}', [ArticleController::class, 'showByUsernameAndSlug'])->name('api.articles.by-username-slug');
     Route::get('/{slug}', [ArticleController::class, 'show'])->name('api.articles.show');
     
     // Protected routes (require authentication)
     Route::middleware('auth:api')->group(function () {
         // CRUD operations
         Route::post('/', [ArticleController::class, 'store'])->name('api.articles.store');
-        Route::put('/{id}', [ArticleController::class, 'update'])->name('api.articles.update');
+        Route::post('/update/{id}', [ArticleController::class, 'update'])->name('api.articles.update');
         Route::delete('/{id}', [ArticleController::class, 'destroy'])->name('api.articles.destroy');
         
         // User's articles
