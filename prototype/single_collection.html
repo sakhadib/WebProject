@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI and Machine Learning - Collection - Reko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'medium': ['Charter', 'Georgia', 'Times', 'serif'],
+                        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-white font-sans text-gray-900">
+    <!-- Header -->
+    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="feed.html" class="text-2xl font-bold text-black">Reko</a>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <a href="profile.html" class="text-gray-600 hover:text-black transition-colors duration-200">Alex Chen</a>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <a href="collection.html" class="text-gray-600 hover:text-black transition-colors duration-200">Collections</a>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <span class="text-gray-600">AI and Machine Learning</span>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-lg mx-8">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               placeholder="Search this collection..." 
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-full leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-black focus:border-black text-sm">
+                    </div>
+                </div>
+                
+                <nav class="flex items-center space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-black transition-colors duration-200">Write</a>
+                    <a href="profile.html" class="text-gray-600 hover:text-black transition-colors duration-200">Profile</a>
+                    <a href="collection.html" class="text-gray-600 hover:text-black transition-colors duration-200">Collections</a>
+                    <a href="login.html" class="text-gray-600 hover:text-black transition-colors duration-200">Sign out</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Collection Header -->
+        <section class="mb-12">
+            <!-- Collection Cover -->
+            <div class="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-8 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=400&fit=crop&crop=smart" 
+                     alt="AI and Machine Learning" 
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                    <div class="p-8 text-white">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Public Collection
+                            </span>
+                            <span class="text-sm opacity-90">12 articles</span>
+                        </div>
+                        <h1 class="text-4xl font-bold mb-3">AI and Machine Learning</h1>
+                        <p class="text-lg opacity-90 max-w-2xl">
+                            A curated collection of the latest developments in artificial intelligence, machine learning algorithms, and their practical applications across industries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collection Meta -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-4">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" 
+                         alt="Alex Chen" 
+                         class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <div class="font-medium text-gray-900">Created by Alex Chen</div>
+                        <div class="text-sm text-gray-500">Updated 2 days ago • 1,247 views</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-colors duration-200 text-sm font-medium flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+                        </svg>
+                        <span>Share</span>
+                    </button>
+                    <button class="px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors duration-200 text-sm font-medium flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                        <span>Follow</span>
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-colors duration-200 text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sort Options -->
+            <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+                <div class="flex items-center space-x-6">
+                    <button class="text-sm font-medium text-black border-b-2 border-black pb-2">
+                        Recently Added
+                    </button>
+                    <button class="text-sm text-gray-500 hover:text-gray-700 pb-2">
+                        Most Popular
+                    </button>
+                    <button class="text-sm text-gray-500 hover:text-gray-700 pb-2">
+                        Oldest First
+                    </button>
+                </div>
+                <div class="text-sm text-gray-500">
+                    12 articles
+                </div>
+            </div>
+        </section>
+
+        <!-- Articles List -->
+        <section class="space-y-8">
+            <!-- Article 1 -->
+            <article class="group">
+                <div class="flex flex-col space-y-4">
+                    <!-- Article Meta -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" 
+                                 alt="Alex Chen" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="font-medium text-gray-900">Alex Chen</span>
+                                <span class="text-gray-500">•</span>
+                                <span class="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Technology</span>
+                                <span class="text-gray-500">•</span>
+                                <time class="text-gray-500">Aug 8, 2025</time>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Content with Image -->
+                    <div class="flex items-start space-x-6">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight">
+                                The Future of Artificial Intelligence: What We Can Expect in the Next Decade
+                            </h3>
+                            <p class="text-gray-600 text-lg leading-relaxed mb-4">
+                                As we stand at the precipice of a new era in technology, artificial intelligence continues to evolve at an unprecedented pace. From healthcare to transportation, AI is reshaping every aspect of our daily lives...
+                            </p>
+                            <div class="text-sm text-gray-500 mb-3">
+                                Added to collection 2 days ago
+                            </div>
+                        </div>
+                        <div class="w-32 h-20 bg-gray-200 rounded flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&h=200&fit=crop&crop=smart" 
+                                 alt="AI Technology" 
+                                 class="w-full h-full object-cover rounded">
+                        </div>
+                    </div>
+                    
+                    <!-- Engagement Stats -->
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>247</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>18</span>
+                            </div>
+                            <span>12 min read</span>
+                        </div>
+                        <a href="post_details.html" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                            Read story →
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <hr class="border-gray-200">
+
+            <!-- Article 2 -->
+            <article class="group">
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" 
+                                 alt="Alex Chen" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="font-medium text-gray-900">Alex Chen</span>
+                                <span class="text-gray-500">•</span>
+                                <span class="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Programming</span>
+                                <span class="text-gray-500">•</span>
+                                <time class="text-gray-500">Aug 5, 2025</time>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight">
+                            Machine Learning Fundamentals Every Developer Should Know
+                        </h3>
+                        <p class="text-gray-600 text-lg leading-relaxed mb-4">
+                            Understanding the core concepts behind modern AI systems is crucial for any developer looking to integrate machine learning into their applications. This guide covers the essential algorithms and techniques...
+                        </p>
+                        <div class="text-sm text-gray-500 mb-3">
+                            Added to collection 5 days ago
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>189</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>25</span>
+                            </div>
+                            <span>8 min read</span>
+                        </div>
+                        <a href="#" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                            Read story →
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <hr class="border-gray-200">
+
+            <!-- Article 3 -->
+            <article class="group">
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b287?w=100&h=100&fit=crop&crop=face" 
+                                 alt="Sarah Johnson" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="font-medium text-gray-900">Sarah Johnson</span>
+                                <span class="text-gray-500">•</span>
+                                <span class="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Science</span>
+                                <span class="text-gray-500">•</span>
+                                <time class="text-gray-500">Aug 2, 2025</time>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-start space-x-6">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight">
+                                Deep Learning: From Perceptrons to Transformers
+                            </h3>
+                            <p class="text-gray-600 text-lg leading-relaxed mb-4">
+                                A comprehensive journey through neural network evolution, exploring how we went from simple perceptrons to complex transformer architectures that power today's most advanced AI systems...
+                            </p>
+                            <div class="text-sm text-gray-500 mb-3">
+                                Added to collection 1 week ago
+                            </div>
+                        </div>
+                        <div class="w-32 h-20 bg-gray-200 rounded flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=300&h=200&fit=crop&crop=smart" 
+                                 alt="Neural Networks" 
+                                 class="w-full h-full object-cover rounded">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>324</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>42</span>
+                            </div>
+                            <span>15 min read</span>
+                        </div>
+                        <a href="#" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                            Read story →
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <hr class="border-gray-200">
+
+            <!-- Article 4 -->
+            <article class="group">
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" 
+                                 alt="Michael Rodriguez" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="font-medium text-gray-900">Michael Rodriguez</span>
+                                <span class="text-gray-500">•</span>
+                                <span class="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Technology</span>
+                                <span class="text-gray-500">•</span>
+                                <time class="text-gray-500">Jul 30, 2025</time>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight">
+                            The Ethics of AI: Building Responsible Technology
+                        </h3>
+                        <p class="text-gray-600 text-lg leading-relaxed mb-4">
+                            As artificial intelligence becomes more powerful and ubiquitous, we must address the ethical implications of our creations. This article explores the principles and practices needed to build AI that benefits humanity...
+                        </p>
+                        <div class="text-sm text-gray-500 mb-3">
+                            Added to collection 2 weeks ago
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>156</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>31</span>
+                            </div>
+                            <span>10 min read</span>
+                        </div>
+                        <a href="#" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                            Read story →
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <hr class="border-gray-200">
+
+            <!-- Article 5 -->
+            <article class="group">
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" 
+                                 alt="Emma Thompson" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="font-medium text-gray-900">Emma Thompson</span>
+                                <span class="text-gray-500">•</span>
+                                <span class="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Programming</span>
+                                <span class="text-gray-500">•</span>
+                                <time class="text-gray-500">Jul 27, 2025</time>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-start space-x-6">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight">
+                                TensorFlow vs PyTorch: A Developer's Guide to Choosing
+                            </h3>
+                            <p class="text-gray-600 text-lg leading-relaxed mb-4">
+                                The eternal debate in the machine learning community: which framework should you choose for your next project? We break down the strengths and weaknesses of both TensorFlow and PyTorch...
+                            </p>
+                            <div class="text-sm text-gray-500 mb-3">
+                                Added to collection 2 weeks ago
+                            </div>
+                        </div>
+                        <div class="w-32 h-20 bg-gray-200 rounded flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop&crop=smart" 
+                                 alt="Programming" 
+                                 class="w-full h-full object-cover rounded">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>278</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>39</span>
+                            </div>
+                            <span>6 min read</span>
+                        </div>
+                        <a href="#" class="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                            Read story →
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <hr class="border-gray-200">
+
+            <!-- More articles placeholder -->
+            <div class="text-center py-8">
+                <p class="text-gray-500 mb-4">7 more articles in this collection</p>
+                <button class="px-6 py-3 border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-colors duration-200 font-medium">
+                    Show all articles
+                </button>
+            </div>
+        </section>
+
+        <!-- Collection Stats -->
+        <section class="mt-16 bg-gray-50 rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-black mb-6">Collection Statistics</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-black mb-2">12</div>
+                    <div class="text-sm text-gray-600">Total Articles</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-black mb-2">1,247</div>
+                    <div class="text-sm text-gray-600">Total Views</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-black mb-2">89</div>
+                    <div class="text-sm text-gray-600">Followers</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-black mb-2">134 min</div>
+                    <div class="text-sm text-gray-600">Total Reading Time</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center text-sm text-gray-500">
+                <p>&copy; 2025 Reko. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
