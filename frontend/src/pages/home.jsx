@@ -1,13 +1,14 @@
-import PostCard from '../components/postcard'
-import { posts } from '../data/posts'
+import Navbar from "../components/Navbar";
+import FeedAside from "../components/feedAside";
 
-export default function Home() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Latest posts</h1>
-      <div className="grid gap-4">
-        {posts.map(p => <PostCard key={p.slug} post={p} />)}
-      </div>
-    </div>
-  )
+export default function Home(){
+    return (
+        <div>
+            <Navbar />
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8">
+                <FeedAside />
+            </div>
+            
+        </div>
+    );
 }
