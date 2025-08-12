@@ -24,6 +24,8 @@ export default function Navbar() {
                     </div>
                     <nav className="flex items-center space-x-6">
                         <Link to="/" className="text-gray-600 hover:text-black transition-colors duration-200">Home</Link>
+                        <Link to="/collections" className="text-gray-600 hover:text-black transition-colors duration-200">Collections</Link>
+                        <Link to="/profile" className="text-gray-600 hover:text-black transition-colors duration-200">Profile</Link>
                         <Link to="/login" className="text-gray-600 hover:text-black transition-colors duration-200">Login</Link>
                         <Link to="/signup" className="text-gray-600 hover:text-black transition-colors duration-200">Sign up</Link>
                     </nav>
