@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function Navbar() {
     return (
         <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -21,10 +23,9 @@ export default function Navbar() {
                         </div>
                     </div>
                     <nav className="flex items-center space-x-6">
-                        <a href="#" className="text-gray-600 hover:text-black transition-colors duration-200">Write</a>
-                        <a href="profile.html" className="text-gray-600 hover:text-black transition-colors duration-200">Profile</a>
-                        <a href="collection.html" className="text-gray-600 hover:text-black transition-colors duration-200">Collections</a>
-                        <a href="login.html" className="text-gray-600 hover:text-black transition-colors duration-200">Sign out</a>
+                        <Link to="/" className="text-gray-600 hover:text-black transition-colors duration-200">Home</Link>
+                        <Link to="/login" className="text-gray-600 hover:text-black transition-colors duration-200">Login</Link>
+                        <Link to="/signup" className="text-gray-600 hover:text-black transition-colors duration-200">Sign up</Link>
                     </nav>
                 </div>
             </div>
