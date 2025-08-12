@@ -1,4 +1,5 @@
 import ProfilePersonal from "../components/personal"
+import RecentPosts from "../components/recentPosts"
 
 export default function Profile(){
     return(
@@ -19,6 +20,10 @@ export default function Profile(){
                         </button>
                     </nav>
                 </div>
+            </section>
+
+            <section class="space-y-8">
+                <RecentPosts />
             </section>
         </main>
     )
