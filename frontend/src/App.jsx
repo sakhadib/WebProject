@@ -4,6 +4,7 @@ import Login from './pages/login'
 import Signup from './pages/signup'
 import Profile from './pages/profile'
 import Collections from './pages/collections'
+import CreateBlog from './pages/CreateBlog'
 
 import Footer from './components/footer'
 import Navbar from './components/Navbar'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/blog/new" element={<CreateBlog />} />
         {/* Add more routes as needed */}
       </Routes>
       <Footer />
