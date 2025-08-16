@@ -1,127 +1,174 @@
-export default function Signup(){
-    return(
-        <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
-            <div class="max-w-md w-full space-y-8">
 
-                <div class="text-center">
-                    <h1 class="text-4xl font-normal text-black tracking-tight mb-2">Join us today.</h1>
-                    <p class="text-gray-600 text-base">Create your account to get started</p>
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
+export default function Signup() {
+
+    const [formData, setFormData] = useState({
+        email: "",
+        username: "",
+        password: "",
+        password_confirmation: ""
+    });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+
+        // Client-side validation
+        if (formData.password !== formData.password_confirmation) {
+            setError("Passwords do not match");
+            setLoading(false);
+            return;
+        }
+        if (formData.password.length < 6) {
+            setError("Password must be at least 6 characters");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            await api.post("/auth/register", {
+                email: formData.email,
+                username: formData.username,
+                password: formData.password,
+                password_confirmation: formData.password_confirmation
+            });
+            // Registration successful, redirect to login
+            navigate("/login", { state: { message: "Account created successfully! Please log in." } });
+        } catch (err) {
+            if (err.response && err.response.data) {
+                if (err.response.data.errors) {
+                    // Handle validation errors
+                    const errorMessages = Object.values(err.response.data.errors).flat();
+                    setError(errorMessages.join(", "));
+                } else if (err.response.data.message) {
+                    setError(err.response.data.message);
+                }
+            } else {
+                setError("Registration failed. Please try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-md w-full space-y-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-normal text-black tracking-tight mb-2">Join us today.</h1>
+                    <p className="text-gray-600 text-base">Create your account to get started</p>
                 </div>
 
-
-                <form class="mt-8 space-y-6" action="#" method="POST">
-                    <div class="space-y-4">
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    <div className="space-y-4">
 
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-900 mb-2">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
                                 Email
                             </label>
                             <input
                                 id="email"
                                 name="email"
                                 type="email"
-                                autocomplete="email"
+                                autoComplete="email"
                                 required
-                                class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
+                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
                                 placeholder="Enter your email"
+                                value={formData.email}
+                                onChange={handleChange}
                             />
                         </div>
 
 
                         <div>
-                            <label for="username" class="block text-sm font-medium text-gray-900 mb-2">
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-900 mb-2">
                                 Username
                             </label>
                             <input
                                 id="username"
                                 name="username"
                                 type="text"
-                                autocomplete="username"
+                                autoComplete="username"
                                 required
-                                class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
+                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
                                 placeholder="Choose a username"
+                                value={formData.username}
+                                onChange={handleChange}
                             />
                         </div>
 
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="firstName" class="block text-sm font-medium text-gray-900 mb-2">
-                                    First Name
-                                </label>
-                                <input
-                                    id="firstName"
-                                    name="firstName"
-                                    type="text"
-                                    autocomplete="given-name"
-                                    required
-                                    class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
-                                    placeholder="First name"
-                                />
-                            </div>
-                            <div>
-                                <label for="lastName" class="block text-sm font-medium text-gray-900 mb-2">
-                                    Last Name
-                                </label>
-                                <input
-                                    id="lastName"
-                                    name="lastName"
-                                    type="text"
-                                    autocomplete="family-name"
-                                    required
-                                    class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
-                                    placeholder="Last name"
-                                />
-                            </div>
-                        </div>
+                        {/* Name fields removed to match backend requirements */}
 
 
                         <div>
-                            <label for="password" class="block text-sm font-medium text-gray-900 mb-2">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
                                 Password
                             </label>
                             <input
                                 id="password"
                                 name="password"
                                 type="password"
-                                autocomplete="new-password"
+                                autoComplete="new-password"
                                 required
-                                class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
+                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
                                 placeholder="Create a password"
+                                value={formData.password}
+                                onChange={handleChange}
                             />
                         </div>
 
 
                         <div>
-                            <label for="confirmPassword" class="block text-sm font-medium text-gray-900 mb-2">
+                            <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-900 mb-2">
                                 Confirm Password
                             </label>
                             <input
-                                id="confirmPassword"
-                                name="confirmPassword"
+                                id="password_confirmation"
+                                name="password_confirmation"
                                 type="password"
-                                autocomplete="new-password"
+                                autoComplete="new-password"
                                 required
-                                class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
+                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent focus:z-10 text-base"
                                 placeholder="Confirm your password"
+                                value={formData.password_confirmation}
+                                onChange={handleChange}
                             />
                         </div>
                     </div>
 
+                    {error && (
+                        <div className="text-red-600 text-sm text-center mt-2">{error}</div>
+                    )}
 
-                    <div class="flex items-start">
+
+                    <div className="flex items-start">
                         <input
                             id="terms"
                             name="terms"
                             type="checkbox"
                             required
-                            class="h-4 w-4 text-black focus:ring-black border-gray-300 rounded mt-1"
+                            className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded mt-1"
                         />
-                        <label for="terms" class="ml-2 block text-sm text-gray-900">
+                        <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
                             I agree to the 
-                            <a href="#" class="font-medium text-black hover:text-gray-800 transition-colors duration-200">Terms of Service</a>
+                            <a href="#" className="font-medium text-black hover:text-gray-800 transition-colors duration-200">Terms of Service</a>
                             and 
-                            <a href="#" class="font-medium text-black hover:text-gray-800 transition-colors duration-200">Privacy Policy</a>
+                            <a href="#" className="font-medium text-black hover:text-gray-800 transition-colors duration-200">Privacy Policy</a>
                         </label>
                     </div>
 
@@ -129,9 +176,10 @@ export default function Signup(){
                     <div>
                         <button
                             type="submit"
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-200"
+                            disabled={loading}
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-200 disabled:opacity-50"
                         >
-                            Create Account
+                            {loading ? "Creating Account..." : "Create Account"}
                         </button>
                     </div>
 
@@ -164,12 +212,12 @@ export default function Signup(){
                     </div>
 
 
-                    <div class="text-center mt-6">
-                        <p class="text-sm text-gray-600">
+                    <div className="text-center mt-6">
+                        <p className="text-sm text-gray-600">
                             Already have an account?
-                            <a href="login.html" class="font-medium text-black hover:text-gray-800 transition-colors duration-200">
+                            <Link to="/login" className="font-medium text-black hover:text-gray-800 transition-colors duration-200">
                                 Sign in
-                            </a>
+                            </Link>
                         </p>
                     </div>
                 </form>
