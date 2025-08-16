@@ -6,9 +6,10 @@ import Profile from './pages/profile'
 import Collections from './pages/collections'
 
 import PostDetails from './pages/postDetail'
-
-
 import CreateBlog from './pages/CreateBlog'
+
+import TestCreate from './pages/testCreate'
+
 import BlogPost from './pages/BlogDetails'
 import Footer from './components/footer'
 import Navbar from './components/navbar'
@@ -26,7 +27,7 @@ export default function App() {
 
         <Route path="/post/:id" element={<PostDetails />} />
 
-        <Route path="/blog/new" element={<CreateBlog />} />
+        <Route path="/write" element={<TestCreate />} />
         <Route path="/blog/:id" element={<BlogPost />} />
         {/* Add more routes as needed */}
       </Routes>
