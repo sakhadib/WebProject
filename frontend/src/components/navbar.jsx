@@ -1,6 +1,40 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [username, setUsername] = useState("");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        setIsAuthenticated(!!token);
+        if (token) {
+            // Try to get username from localStorage (set after login), fallback to 'Profile'
+            const user = localStorage.getItem("user");
+            if (user) {
+                try {
+                    setUsername(JSON.parse(user).username || "Profile");
+                } catch {
+                    setUsername("Profile");
+                }
+            } else {
+                setUsername("Profile");
+            }
+        } else {
+            setUsername("");
+        }
+    }, []);
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setIsAuthenticated(false);
+        setUsername("");
+        navigate("/login");
+    };
+
     return (
         <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,9 +59,18 @@ export default function Navbar() {
                     <nav className="flex items-center space-x-6">
                         <Link to="/" className="text-gray-600 hover:text-black transition-colors duration-200">Home</Link>
                         <Link to="/collections" className="text-gray-600 hover:text-black transition-colors duration-200">Collections</Link>
-                        <Link to="/profile" className="text-gray-600 hover:text-black transition-colors duration-200">Profile</Link>
-                        <Link to="/login" className="text-gray-600 hover:text-black transition-colors duration-200">Login</Link>
-                        <Link to="/signup" className="text-gray-600 hover:text-black transition-colors duration-200">Sign up</Link>
+                        {isAuthenticated ? (
+                            <>
+                                <Link to="/write" className="text-white bg-black px-4 py-1 rounded-full font-semibold hover:bg-gray-900 transition-colors duration-200">Write</Link>
+                                <Link to="/profile" className="text-gray-600 hover:text-black transition-colors duration-200">{username || "Profile"}</Link>
+                                <a href="/logout" onClick={handleLogout} className="text-gray-600 hover:text-black transition-colors duration-200">Logout</a>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/signup" className="text-gray-600 hover:text-black transition-colors duration-200">Sign up</Link>
+                                <Link to="/login" className="text-gray-600 hover:text-black transition-colors duration-200">Login</Link>
+                            </>
+                        )}
                     </nav>
                 </div>
             </div>
