@@ -11,6 +11,7 @@ use App\Http\Controllers\Article\CategoryController;
 use App\Http\Controllers\Article\ArticleController;
 use App\Http\Controllers\Publication\PublicationController;
 use App\Http\Controllers\Topic\TopicController;
+use App\Http\Controllers\User\ProfileController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -127,5 +128,14 @@ Route::group([
 ], function ($router) {
 
     Route::get('/top', [TopicController::class, 'topTopics'])->name('api.topics.top-topics');
+
+});
+
+
+Route::group([
+    'prefix' => 'profile'
+], function ($router) {
+
+    Route::get('/{username}', [ProfileController::class, 'profile'])->name('api.profile.show');
 
 });

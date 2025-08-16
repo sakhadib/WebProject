@@ -1,21 +1,37 @@
+import {useEffect, useState} from "react";
+import api from "../api/axios";
+
 export default function ProfilePersonal() {
+    
+    const [personal, setPersonal] = useState();
+
+    useEffect(() => {
+        const fetchPersonalInfo = async () => {
+            const response = await api.get(`/profile/adibsakhawat`);
+            setPersonal(response.data);
+        };
+
+        fetchPersonalInfo();
+    }, []);
+
     return (
         <section className="mb-16">
             <div className="flex flex-col items-center text-center">
                 <div className="mb-6">
                     <img
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-                        alt="Alex Chen"
+                        src={personal.avatar}
+                        alt={personal.username}
                         className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                     />
+                    
                 </div>
                 <div className="mb-4">
-                    <h1 className="text-4xl font-bold text-black mb-2">Alex Chen</h1>
-                    <p className="text-xl text-gray-600">@alexchen_tech</p>
+                    <h1 className="text-4xl font-bold text-black mb-2">{personal.first_name} {personal.last_name}</h1>
+                    <p className="text-xl text-gray-600">@{personal.username}</p>
                 </div>
                 <div className="mb-6 max-w-2xl">
                     <p className="text-lg text-gray-700 leading-relaxed">
-                        Senior AI Researcher at TechCorp. Passionate about machine learning, neural networks, and the future of artificial intelligence. Writing about tech, innovation, and digital transformation.
+                        {personal.bio}
                     </p>
                 </div>
                 <div className="flex items-center space-x-8 mb-8">
