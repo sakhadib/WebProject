@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import Navbar from "../components/navbar";
 import FeedAside from "../components/feedAside";
 import Article from "../components/article";
 

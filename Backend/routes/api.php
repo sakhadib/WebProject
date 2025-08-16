@@ -9,6 +9,7 @@ use App\Http\Controllers\User\SocialMediaController;
 use App\Http\Controllers\Article\CollectionController;
 use App\Http\Controllers\Article\CategoryController;
 use App\Http\Controllers\Article\ArticleController;
+use App\Http\Controllers\Publication\PublicationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -111,4 +112,10 @@ Route::group([
 });
 
 
+Route::group([
+    'prefix' => 'publications'
+], function ($router) {
+    
+    Route::get('/top', [PublicationController::class, 'topFivePublications'])->name('api.publications.top-five');
 
+});
