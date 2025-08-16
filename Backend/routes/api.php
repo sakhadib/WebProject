@@ -10,6 +10,7 @@ use App\Http\Controllers\Article\CollectionController;
 use App\Http\Controllers\Article\CategoryController;
 use App\Http\Controllers\Article\ArticleController;
 use App\Http\Controllers\Publication\PublicationController;
+use App\Http\Controllers\Topic\TopicController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -117,5 +118,14 @@ Route::group([
 ], function ($router) {
     
     Route::get('/top', [PublicationController::class, 'topFivePublications'])->name('api.publications.top-five');
+
+});
+
+
+Route::group([
+    'prefix' => 'topics'
+], function ($router) {
+
+    Route::get('/top', [TopicController::class, 'topTopics'])->name('api.topics.top-topics');
 
 });
