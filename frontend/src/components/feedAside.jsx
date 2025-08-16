@@ -1,39 +1,47 @@
+import { useState, useEffect } from "react";
+import api from "../api/axios";
+
 export default function FeedAside(){
+    const [topPublications, setTopPublications] = useState([]);
+
+    useEffect(() => {
+        const fetchTopPublications = async () => {
+            try {
+                const response = await api.get("/publications/top");
+                setTopPublications(response.data);
+            } catch (error) {
+                console.error("Error fetching top publications:", error);
+            }
+        };
+
+        fetchTopPublications();
+    }, []);
+
     return(
-        <aside class="w-64 flex-shrink-0 sticky top-24 h-fit">
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold text-black mb-4">Top Publications</h3>
-                <div class="space-y-3">
-                    <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-black transition-colors duration-200">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold">TH</span>
-                        </div>
-                        <span class="text-sm">The Hustle</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-black transition-colors duration-200">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold">TC</span>
-                        </div>
-                        <span class="text-sm">TechCrunch</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-black transition-colors duration-200">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold">VG</span>
-                        </div>
-                        <span class="text-sm">The Verge</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-black transition-colors duration-200">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold">HB</span>
-                        </div>
-                        <span class="text-sm">Harvard Business Review</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-black transition-colors duration-200">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold">WD</span>
-                        </div>
-                        <span class="text-sm">Wired</span>
-                    </a>
+        <aside className="w-64 flex-shrink-0 sticky top-24 h-fit">
+            <div className="mb-8">
+                <h3 className="text-lg font-semibold text-black mb-4">Top Publications</h3>
+                <div className="space-y-3">
+                    {topPublications.length === 0 ? (
+                        <div className="text-gray-400 text-sm">No publications found.</div>
+                    ) : (
+                        topPublications.map((pub) => (
+                            <a
+                                key={pub.id}
+                                href={"/publication/" + pub.id}
+                                className="flex items-center space-x-3 text-gray-700 hover:text-black transition-colors duration-200"
+                            >
+                                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                    <span className="text-xs font-bold">
+                                        {pub.title
+                                            ? pub.title.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2)
+                                            : "PU"}
+                                    </span>
+                                </div>
+                                <span className="text-sm truncate max-w-[120px]">{pub.title}</span>
+                            </a>
+                        ))
+                    )}
                 </div>
             </div>
 
