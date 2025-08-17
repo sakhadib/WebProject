@@ -18,4 +18,10 @@ class TopicController extends Controller
 
         return response()->json($topics);
     }
+
+    public function index(Request $request)
+    {
+        $topics = Topic::all();
+        return response()->json($topics);
+    }
 }

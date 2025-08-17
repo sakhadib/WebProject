@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios'; // Adjust the import based on your API setup
 
 export default function TestCreate() {
+    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     useEffect(() => {
         const fetchCategories = async () => {
@@ -25,7 +27,7 @@ export default function TestCreate() {
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [publishData, setPublishData] = useState({
-        topics: [],
+        topics: '', // Changed to string for comma-separated values
         topicInput: '',
         featuredImage: null,
         category: ''
@@ -79,12 +81,25 @@ export default function TestCreate() {
         { value: 'caption', label: 'Caption' }
     ];
 
-    // Suggested topics (would come from API in real app)
-    const suggestedTopics = [
-        'JavaScript', 'React', 'Node.js', 'Python', 'AI', 'Machine Learning',
-        'Web Development', 'Mobile Apps', 'DevOps', 'Cloud Computing',
-        'Blockchain', 'Cybersecurity', 'Data Science', 'UI/UX Design'
-    ];
+
+    const [suggestedTopics, setSuggestedTopics] = useState([]);
+
+    // Fetch suggested topics from API
+    useEffect(() => {
+        const fetchSuggestedTopics = async () => {
+            try {
+                const response = await api.get('/topics');
+                // Extract topic names from the API response
+                const topicNames = response.data.map(topic => topic.name);
+                setSuggestedTopics(topicNames);
+            } catch (error) {
+                console.error('Error fetching suggested topics:', error);
+            }
+        };
+
+        fetchSuggestedTopics();
+    }, []);
+    // ];
 
     // Update serials to maintain order
     const updateSerials = (newChunks) => {
@@ -204,21 +219,59 @@ export default function TestCreate() {
     };
 
     // Publish modal helper functions
+    const getTopicsArray = () => {
+        return publishData.topics ? publishData.topics.split(',').map(t => t.trim()).filter(Boolean) : [];
+    };
+
     const addTopic = (topic) => {
-        if (topic && !publishData.topics.includes(topic)) {
+        const trimmedTopic = topic?.trim();
+        const currentTopics = getTopicsArray();
+        
+        if (trimmedTopic && !currentTopics.includes(trimmedTopic)) {
+            const newTopicsString = currentTopics.length > 0 
+                ? `${publishData.topics}, ${trimmedTopic}`
+                : trimmedTopic;
+            
             setPublishData(prev => ({
                 ...prev,
-                topics: [...prev.topics, topic],
+                topics: newTopicsString,
                 topicInput: ''
             }));
         }
     };
 
     const removeTopic = (topicToRemove) => {
+        const currentTopics = getTopicsArray();
+        const filteredTopics = currentTopics.filter(topic => topic !== topicToRemove);
+        
         setPublishData(prev => ({
             ...prev,
-            topics: prev.topics.filter(topic => topic !== topicToRemove)
+            topics: filteredTopics.join(', ')
         }));
+    };
+
+    const handleTopicInputChange = (value) => {
+        // Check if user typed a comma
+        if (value.includes(',')) {
+            const newTopics = value.split(',').map(t => t.trim()).filter(Boolean);
+            const lastTopic = newTopics[newTopics.length - 1];
+            
+            // Add all complete topics (everything before the last comma)
+            newTopics.slice(0, -1).forEach(topic => {
+                if (topic) addTopic(topic);
+            });
+            
+            // Set the remaining text as input
+            setPublishData(prev => ({
+                ...prev,
+                topicInput: lastTopic || ''
+            }));
+        } else {
+            setPublishData(prev => ({
+                ...prev,
+                topicInput: value
+            }));
+        }
     };
 
     const handleImageUpload = (e) => {
@@ -249,8 +302,8 @@ export default function TestCreate() {
             }
             
             // Add topics as comma-separated string
-            if (publishData.topics.length > 0) {
-                formData.append('topics', publishData.topics.join(', '));
+            if (publishData.topics) {
+                formData.append('topics', publishData.topics);
             }
             
             // Add featured image if selected
@@ -299,8 +352,8 @@ export default function TestCreate() {
             formData.append('category_id', publishData.category);
             
             // Add topics as comma-separated string
-            if (publishData.topics.length > 0) {
-                formData.append('topics', publishData.topics.join(', '));
+            if (publishData.topics) {
+                formData.append('topics', publishData.topics);
             }
             
             // Add featured image if selected
@@ -318,8 +371,9 @@ export default function TestCreate() {
             alert('Article published successfully!');
             setShowPublishModal(false);
             
-            // Optionally redirect to the published article or clear the form
-            // window.location.href = `/articles/${response.data.data.article.slug}`;
+            // Navigate to the published article
+            const slug = response.data.data.article.slug;
+            navigate(`/article/${slug}`);
         } catch (error) {
             console.error('Error publishing article:', error);
             
@@ -713,7 +767,7 @@ export default function TestCreate() {
                                     </label>
                                     <div className="space-y-3">
                                         <div className="flex flex-wrap gap-2 mb-2">
-                                            {publishData.topics.map((topic, index) => (
+                                            {getTopicsArray().map((topic, index) => (
                                                 <span
                                                     key={index}
                                                     className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
@@ -731,14 +785,14 @@ export default function TestCreate() {
                                         <input
                                             type="text"
                                             value={publishData.topicInput}
-                                            onChange={(e) => setPublishData(prev => ({ ...prev, topicInput: e.target.value }))}
+                                            onChange={(e) => handleTopicInputChange(e.target.value)}
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') {
                                                     e.preventDefault();
                                                     addTopic(publishData.topicInput);
                                                 }
                                             }}
-                                            placeholder="Add topics..."
+                                            placeholder="Add topics (separate with commas)..."
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                         {publishData.topicInput && (
@@ -746,10 +800,11 @@ export default function TestCreate() {
                                                 <p className="text-sm text-gray-600 mb-2">Suggestions:</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {suggestedTopics
-                                                        .filter(topic => 
-                                                            topic.toLowerCase().includes(publishData.topicInput.toLowerCase()) &&
-                                                            !publishData.topics.includes(topic)
-                                                        )
+                                                        .filter(topic => {
+                                                            const currentTopics = getTopicsArray();
+                                                            return topic.toLowerCase().includes(publishData.topicInput.toLowerCase()) &&
+                                                                   !currentTopics.includes(topic);
+                                                        })
                                                         .slice(0, 6)
                                                         .map((topic) => (
                                                             <button

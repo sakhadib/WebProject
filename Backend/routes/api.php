@@ -129,6 +129,7 @@ Route::group([
 ], function ($router) {
 
     Route::get('/top', [TopicController::class, 'topTopics'])->name('api.topics.top-topics');
+    Route::get('/', [TopicController::class, 'index'])->name('api.topics.index');
 
 });
 
