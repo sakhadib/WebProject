@@ -23,6 +23,7 @@ export default function TestCreate() {
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [showStylePopup, setShowStylePopup] = useState(null);
     const [showPublishModal, setShowPublishModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [publishData, setPublishData] = useState({
         topics: [],
         topicInput: '',
@@ -230,17 +231,108 @@ export default function TestCreate() {
         }
     };
 
-    const handleSaveDraft = () => {
-        // TODO: Implement save draft functionality
-        console.log('Saving draft...', { title, chunks });
-        alert('Draft saved successfully!');
+    const handleSaveDraft = async () => {
+        if (isLoading) return; // Prevent multiple requests
+        
+        try {
+            setIsLoading(true);
+            
+            // Prepare the data
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', JSON.stringify(chunks));
+            formData.append('status', 'draft');
+            
+            // Add category if selected
+            if (publishData.category) {
+                formData.append('category_id', publishData.category);
+            }
+            
+            // Add topics as comma-separated string
+            if (publishData.topics.length > 0) {
+                formData.append('topics', publishData.topics.join(', '));
+            }
+            
+            // Add featured image if selected
+            if (publishData.featuredImage) {
+                formData.append('featured_image', publishData.featuredImage);
+            }
+
+            const response = await api.post('/articles/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('Draft saved successfully:', response.data);
+            alert('Draft saved successfully!');
+        } catch (error) {
+            console.error('Error saving draft:', error);
+            alert('Error saving draft. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handlePublish = () => {
-        // TODO: Implement publish functionality
-        console.log('Publishing...', { title, chunks, publishData });
-        alert('Article published successfully!');
-        setShowPublishModal(false);
+    const handlePublish = async () => {
+        if (isLoading) return; // Prevent multiple requests
+        
+        try {
+            setIsLoading(true);
+            
+            // Validate required fields
+            if (!title.trim()) {
+                alert('Please enter a title for your article.');
+                return;
+            }
+            
+            if (!publishData.category) {
+                alert('Please select a category for your article.');
+                return;
+            }
+
+            // Prepare the data
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', JSON.stringify(chunks));
+            formData.append('status', 'published');
+            formData.append('category_id', publishData.category);
+            
+            // Add topics as comma-separated string
+            if (publishData.topics.length > 0) {
+                formData.append('topics', publishData.topics.join(', '));
+            }
+            
+            // Add featured image if selected
+            if (publishData.featuredImage) {
+                formData.append('featured_image', publishData.featuredImage);
+            }
+
+            const response = await api.post('/articles/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('Article published successfully:', response.data);
+            alert('Article published successfully!');
+            setShowPublishModal(false);
+            
+            // Optionally redirect to the published article or clear the form
+            // window.location.href = `/articles/${response.data.data.article.slug}`;
+        } catch (error) {
+            console.error('Error publishing article:', error);
+            
+            // Handle validation errors
+            if (error.response && error.response.data && error.response.data.errors) {
+                const errorMessages = Object.values(error.response.data.errors).flat();
+                alert('Validation errors:\n' + errorMessages.join('\n'));
+            } else {
+                alert('Error publishing article. Please try again.');
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     // Render chunk content based on style with in-place editing
@@ -580,13 +672,15 @@ export default function TestCreate() {
                     <div className="flex items-center justify-between">
                         <button
                             onClick={handleSaveDraft}
-                            className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+                            disabled={isLoading}
+                            className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Save Draft
+                            {isLoading ? 'Saving...' : 'Save Draft'}
                         </button>
                         <button
                             onClick={() => setShowPublishModal(true)}
-                            className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                            disabled={isLoading}
+                            className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Publish
                         </button>
@@ -738,15 +832,17 @@ export default function TestCreate() {
                             <div className="flex items-center justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
                                 <button
                                     onClick={() => setShowPublishModal(false)}
-                                    className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+                                    disabled={isLoading}
+                                    className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handlePublish}
-                                    className="px-8 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                                    disabled={isLoading}
+                                    className="px-8 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Publish Article
+                                    {isLoading ? 'Publishing...' : 'Publish Article'}
                                 </button>
                             </div>
                         </div>

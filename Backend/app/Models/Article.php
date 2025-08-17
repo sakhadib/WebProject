@@ -101,6 +101,14 @@ class Article extends Model
     }
 
     /**
+     * Get the topics associated with this article
+     */
+    public function topics()
+    {
+        return $this->belongsToMany(Topic::class, 'article_topics');
+    }
+
+    /**
      * Scope to get only published articles
      */
     public function scopePublished($query)

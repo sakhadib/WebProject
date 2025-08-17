@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\Article;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Topic;
 
 /**
  * Class ArticleController
@@ -110,9 +111,9 @@ class ArticleController extends Controller
         try {
             $request->validate([
                 'title' => 'required|string|max:255',
-                'content' => 'required|string',
+                'content' => 'required|json',
                 'category_id' => 'sometimes|integer|exists:categories,id',
-                'excerpt' => 'sometimes|string|max:500',
+                'topics' => 'sometimes|string',
                 'status' => 'sometimes|in:draft,published',
                 'featured_image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -120,7 +121,24 @@ class ArticleController extends Controller
             /** @var User $user */
             $user = auth('api')->user();
 
-            $articleData = [
+            $topics = array_map('trim', explode(',', $request->input('topics', '')));
+            $topics = array_filter($topics);
+            $topicIds = [];
+
+            foreach ($topics as $topicName) {
+                $topic = Topic::firstOrCreate(['name' => $topicName, 'slug' => Str::slug($topicName)]);
+                $topicIds[] = $topic->id;
+            }
+
+            // Handle featured image upload
+            $featuredImagePath = null;
+            if ($request->hasFile('featured_image')) {
+                $image = $request->file('featured_image');
+                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+                $featuredImagePath = $image->storeAs('articles/featured', $imageName, 'public');
+            }
+
+            $article = Article::create([
                 'user_id' => $user->id,
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
@@ -128,22 +146,18 @@ class ArticleController extends Controller
                 'slug' => Str::slug(Str::limit($request->input('title'), 100, '')) . '-' . time(),
                 'excerpt' => $request->input('excerpt'),
                 'status' => $request->input('status', 'draft'),
-            ];
+                'featured_image' => $featuredImagePath,
+            ]);
 
-            // Handle featured image upload
-            if ($request->hasFile('featured_image')) {
-                $image = $request->file('featured_image');
-                $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $imagePath = $image->storeAs('articles/featured', $imageName, 'public');
-                $articleData['featured_image'] = $imagePath;
+            // Attach topics to the article
+            if (!empty($topicIds)) {
+                $article->topics()->attach($topicIds);
             }
-
-            $article = Article::create($articleData);
 
             return response()->json([
                 'message' => 'Article created successfully',
                 'data' => [
-                    'article' => $article->load(['user:id,username,email', 'category:id,name'])
+                    'article' => $article->load(['user:id,username,email', 'category:id,name', 'topics:id,name'])
                 ]
             ], 201);
 
