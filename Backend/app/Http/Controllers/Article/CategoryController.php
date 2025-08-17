@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Category;
+use PDO;
 
 class CategoryController extends Controller
 {
@@ -17,6 +18,13 @@ class CategoryController extends Controller
         // Logic to retrieve and return categories
         $categories = Category::all();
 
+        return response()->json([
+            'data' => $categories
+        ]);
+    }
+
+    public function mini(){
+        $categories = Category::select('id', 'name')->get();
         return response()->json([
             'data' => $categories
         ]);

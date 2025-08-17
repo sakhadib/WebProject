@@ -79,6 +79,7 @@ Route::group([
     // for admins
 ], function ($router) {
     Route::get('categories', [CategoryController::class, 'index'])->name('api.article.categories.index');
+    Route::get('categories/mini', [CategoryController::class, 'mini'])->name('api.article.categories.mini');
     Route::post('categories/add', [CategoryController::class, 'store'])->name('api.article.categories.store');
     Route::get('categories/show/{id}', [CategoryController::class, 'show'])->name('api.article.categories.show');
     Route::post('categories/update/{id}', [CategoryController::class, 'update'])->name('api.article.categories.update');

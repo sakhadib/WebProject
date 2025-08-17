@@ -1,6 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
+import api from '../api/axios'; // Adjust the import based on your API setup
 
 export default function TestCreate() {
+    const [categories, setCategories] = useState([]);
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await api.get('/article/categories/mini');
+                setCategories(response.data.data); // Extract the data array from the response
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
     const [title, setTitle] = useState('');
     const [chunks, setChunks] = useState([
         { serial: 2, style: 'text', content: 'Start writing your blog post here...' }
@@ -11,7 +26,6 @@ export default function TestCreate() {
     const [publishData, setPublishData] = useState({
         topics: [],
         topicInput: '',
-        publication: '',
         featuredImage: null,
         category: ''
     });
@@ -62,23 +76,6 @@ export default function TestCreate() {
         { value: 'bullet', label: 'Bullet List' },
         { value: 'enumerate', label: 'Numbered List' },
         { value: 'caption', label: 'Caption' }
-    ];
-
-    // Mock data for dropdowns
-    const publications = [
-        { id: 1, name: 'Tech Today' },
-        { id: 2, name: 'Code Chronicles' },
-        { id: 3, name: 'Digital Insights' },
-        { id: 4, name: 'Innovation Weekly' }
-    ];
-
-    const categories = [
-        { id: 1, name: 'Technology' },
-        { id: 2, name: 'Programming' },
-        { id: 3, name: 'Web Development' },
-        { id: 4, name: 'AI & Machine Learning' },
-        { id: 5, name: 'Mobile Development' },
-        { id: 6, name: 'DevOps' }
     ];
 
     // Suggested topics (would come from API in real app)
@@ -674,25 +671,6 @@ export default function TestCreate() {
                                             </div>
                                         )}
                                     </div>
-                                </div>
-
-                                {/* Publication Section */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Publication
-                                    </label>
-                                    <select
-                                        value={publishData.publication}
-                                        onChange={(e) => setPublishData(prev => ({ ...prev, publication: e.target.value }))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">Select a publication</option>
-                                        {publications.map((pub) => (
-                                            <option key={pub.id} value={pub.id}>
-                                                {pub.name}
-                                            </option>
-                                        ))}
-                                    </select>
                                 </div>
 
                                 {/* Featured Image Section */}
