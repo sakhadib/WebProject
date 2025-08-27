@@ -4,6 +4,7 @@ import Login from './pages/login'
 import Signup from './pages/signup'
 import Profile from './pages/profile'
 import Collections from './pages/collections'
+import IndividualCollection from './pages/indCollection'
 
 import PostDetails from './pages/postDetail'
 import CreateBlog from './pages/CreateBlog'
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/collection/:slug" element={<IndividualCollection />} />
 
         <Route path="/post/:slug" element={<PostDetails />} />
         <Route path="/article/:slug" element={<PostDetails />} />

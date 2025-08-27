@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Collection;
 use App\Models\CollectionArticle;
+use App\Models\Article;
 
 class CollectionController extends Controller
 {
@@ -56,9 +57,22 @@ class CollectionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($slug)
     {
-        // Logic to show a specific collection
+        $collection = Collection::where('slug', $slug)
+                                ->where('user_id', auth()->id())
+                                ->firstOrFail();
+        
+        $articleIds = CollectionArticle::where('collection_id', $collection->id)
+                                        ->pluck('article_id')
+                                        ->toArray();
+
+        $articles = Article::whereIn('id', $articleIds)->with(['user', 'category'])->get();
+
+        return response()->json([
+            'collection' => $collection,
+            'articles' => $articles
+        ]);
     }
 
     /**
