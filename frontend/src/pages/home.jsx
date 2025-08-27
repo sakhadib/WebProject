@@ -100,7 +100,7 @@ export default function Home() {
                                     image={
                                         article.featured_image
                                             ? `http://127.0.0.1:5050/storage/${article.featured_image}`
-                                            : "https://via.placeholder.com/128x80?text=No+Image"
+                                            : null
                                     }
                                     author_avatar={`https://ui-avatars.com/api/?name=${article.user.username}&background=random&size=32`}
                                     slug={article.slug}
