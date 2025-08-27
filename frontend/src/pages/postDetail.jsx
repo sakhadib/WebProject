@@ -7,6 +7,11 @@ export default function PostDetails() {
     const [article, setArticle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showCollectionModal, setShowCollectionModal] = useState(false);
+    const [collections, setCollections] = useState([]);
+    const [selectedCollection, setSelectedCollection] = useState('');
+    const [isAddingToCollection, setIsAddingToCollection] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -27,6 +32,56 @@ export default function PostDetails() {
             fetchArticle();
         }
     }, [slug]);
+
+    // Show toast notification
+    const showToast = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+        setTimeout(() => {
+            setToast({ show: false, message: '', type: 'success' });
+        }, 4000);
+    };
+
+    // Fetch user's collections when modal opens
+    const fetchCollections = async () => {
+        try {
+            const response = await api.get('/article/collections');
+            setCollections(response.data.data);
+        } catch (error) {
+            console.error('Error fetching collections:', error);
+        }
+    };
+
+    // Handle opening collection modal
+    const handleAddToCollection = () => {
+        setShowCollectionModal(true);
+        fetchCollections();
+    };
+
+    // Handle adding article to selected collection
+    const handleSubmitToCollection = async () => {
+        if (!selectedCollection || !article) return;
+
+        setIsAddingToCollection(true);
+        try {
+            await api.post('/article/collections/add-article', {
+                collection_id: selectedCollection,
+                article_id: article.id
+            });
+            
+            showToast('Article added to collection successfully!', 'success');
+            setShowCollectionModal(false);
+            setSelectedCollection('');
+        } catch (error) {
+            console.error('Error adding article to collection:', error);
+            if (error.response?.status === 403) {
+                showToast('You can only add articles to your own collections.', 'error');
+            } else {
+                showToast('Failed to add article to collection. Please try again.', 'error');
+            }
+        } finally {
+            setIsAddingToCollection(false);
+        }
+    };
 
     // Styles for content chunks (same as editor)
     const styles = {
@@ -186,9 +241,17 @@ export default function PostDetails() {
                         <div className="text-sm text-gray-600">{article.user.email}</div>
                     </div>
                     <div className="flex-1"></div>
-                    <button className="px-4 py-2 border border-black text-black hover:bg-black hover:text-white transition-colors duration-200 text-sm font-medium">
-                        Follow
-                    </button>
+                    <div className="flex items-center space-x-3">
+                        <button 
+                            onClick={handleAddToCollection}
+                            className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-sm font-medium"
+                        >
+                            Add to Collection
+                        </button>
+                        <button className="px-4 py-2 border border-black text-black hover:bg-black hover:text-white transition-colors duration-200 text-sm font-medium">
+                            Follow
+                        </button>
+                    </div>
                 </div>
 
                 {article.featured_image && (
@@ -208,6 +271,142 @@ export default function PostDetails() {
             <article className="prose prose-lg max-w-none">
                 {renderContent(article.content)}
             </article>
+
+            {/* Add to Collection Modal */}
+            {showCollectionModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-bold text-black">Add to Collection</h2>
+                                <button
+                                    onClick={() => setShowCollectionModal(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {collections.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <p className="text-gray-500 mb-4">You don't have any collections yet.</p>
+                                    <p className="text-sm text-gray-400">Create a collection first to organize your articles.</p>
+                                </div>
+                            ) : (
+                                <div>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        Select a collection to add "{article?.title}" to:
+                                    </p>
+                                    
+                                    <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
+                                        {collections.map((collection) => (
+                                            <label
+                                                key={collection.id}
+                                                className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
+                                                    selectedCollection === collection.id.toString()
+                                                        ? 'border-black bg-gray-50'
+                                                        : 'border-gray-200 hover:border-gray-300'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="collection"
+                                                    value={collection.id}
+                                                    checked={selectedCollection === collection.id.toString()}
+                                                    onChange={(e) => setSelectedCollection(e.target.value)}
+                                                    className="mr-3"
+                                                />
+                                                <div className="flex-1">
+                                                    <div className="flex items-center space-x-2">
+                                                        <h3 className="font-medium text-gray-900">{collection.name}</h3>
+                                                        <span className={`text-xs px-2 py-1 rounded-full ${
+                                                            collection.is_public 
+                                                                ? 'bg-green-100 text-green-800' 
+                                                                : 'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                            {collection.is_public ? 'Public' : 'Private'}
+                                                        </span>
+                                                    </div>
+                                                    {collection.description && (
+                                                        <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+                                                            {collection.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                                        <button
+                                            onClick={() => setShowCollectionModal(false)}
+                                            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleSubmitToCollection}
+                                            disabled={!selectedCollection || isAddingToCollection}
+                                            className="px-6 py-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                                        >
+                                            {isAddingToCollection ? 'Adding...' : 'Add to Collection'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Toast Notification */}
+            {toast.show && (
+                <div className="fixed top-4 right-4 z-50 transform transition-all duration-300 ease-out">
+                    <div className={`flex items-center p-4 rounded-lg shadow-lg min-w-80 ${
+                        toast.type === 'success' 
+                            ? 'bg-green-50 border border-green-200' 
+                            : 'bg-red-50 border border-red-200'
+                    }`}>
+                        <div className="flex-shrink-0">
+                            {toast.type === 'success' ? (
+                                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <div className="ml-3">
+                            <p className={`text-sm font-medium ${
+                                toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+                            }`}>
+                                {toast.message}
+                            </p>
+                        </div>
+                        <div className="ml-auto pl-3">
+                            <div className="-mx-1.5 -my-1.5">
+                                <button
+                                    onClick={() => setToast({ show: false, message: '', type: 'success' })}
+                                    className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                                        toast.type === 'success'
+                                            ? 'text-green-500 hover:bg-green-100 focus:ring-green-600'
+                                            : 'text-red-500 hover:bg-red-100 focus:ring-red-600'
+                                    }`}
+                                >
+                                    <span className="sr-only">Dismiss</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

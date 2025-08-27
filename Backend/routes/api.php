@@ -70,6 +70,8 @@ Route::group([
     Route::get('collections/show/{id}', [CollectionController::class, 'show'])->name('api.article.collections.show');
     Route::post('collections/update/{id}', [CollectionController::class, 'update'])->name('api.article.collections.update');
     Route::post('collections/delete/{id}', [CollectionController::class, 'destroy'])->name('api.article.collections.destroy');
+
+    Route::post('collections/add-article', [CollectionController::class, 'addArticle'])->name('api.article.collections.add-article');
 });
 
 

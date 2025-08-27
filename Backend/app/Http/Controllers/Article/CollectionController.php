@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Collection;
+use App\Models\CollectionArticle;
 
 class CollectionController extends Controller
 {
@@ -104,6 +105,46 @@ class CollectionController extends Controller
 
         return response()->json([
             'message' => 'Collection deleted successfully'
+        ], 200);
+    }
+
+
+
+
+
+
+
+    public function addArticle(Request $request){
+        $request->validate([
+            'collection_id' => 'required|exists:collections,id',
+            'article_id' => 'required|exists:articles,id',
+        ]);
+
+        $collection = Collection::findOrFail($request->input('collection_id'));
+
+        // Ensure the collection belongs to the authenticated user
+        if ($collection->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Check if the article is already in the collection
+        $existingArticle = CollectionArticle::where('collection_id', $collection->id)
+                                           ->where('article_id', $request->input('article_id'))
+                                           ->first();
+
+        if ($existingArticle) {
+            return response()->json([
+                'message' => 'Article is already in the collection'
+            ], 200);
+        }
+
+        $collectionArticle = new CollectionArticle();
+        $collectionArticle->collection_id = $collection->id;
+        $collectionArticle->article_id = $request->input('article_id');
+        $collectionArticle->save();
+
+        return response()->json([
+            'message' => 'Article added to collection successfully'
         ], 200);
     }
 }
