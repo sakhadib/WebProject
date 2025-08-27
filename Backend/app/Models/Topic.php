@@ -16,6 +16,6 @@ class Topic extends Model
 
     public function articles()
     {
-        return $this->belongsToMany(Article::class, 'article_topics');
+        return $this->belongsToMany(Article::class, 'article_topics')->with(['user', 'category']);
     }
 }

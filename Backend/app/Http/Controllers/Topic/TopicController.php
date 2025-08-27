@@ -24,4 +24,10 @@ class TopicController extends Controller
         $topics = Topic::all();
         return response()->json($topics);
     }
+
+    public function show($slug)
+    {
+        $topic = Topic::where('slug', $slug)->with('articles')->firstOrFail();
+        return response()->json($topic);
+    }
 }

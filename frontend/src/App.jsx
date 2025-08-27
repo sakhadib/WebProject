@@ -14,6 +14,7 @@ import TestCreate from './pages/testCreate'
 import BlogPost from './pages/BlogDetails'
 import Footer from './components/footer'
 import Navbar from './components/navbar'
+import TopicShow from './pages/topicShow'
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/collections" element={<Collections />} />
         <Route path="/collection/:slug" element={<IndividualCollection />} />
+        <Route path="/topic/:slug" element={<TopicShow />} />
 
         <Route path="/post/:slug" element={<PostDetails />} />
         <Route path="/article/:slug" element={<PostDetails />} />
