@@ -44,6 +44,9 @@ Route::group([
 });
 
 
+Route::get('user/{username}', [ProfileController::class, 'profile'])->name('api.user.show');
+
+
 
 Route::group([
     'middleware' => ['api'],

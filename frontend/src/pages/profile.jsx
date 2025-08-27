@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import api from "../api/axios";
 import ProfilePersonal from "../components/personal";
 import Article from "../components/article";
 import CollectionCard from "../components/collectionCard";
 
 export default function Profile() {
+    const { username } = useParams();
     const [activeTab, setActiveTab] = useState("recent");
     const [user, setUser] = useState(null);
     const [articles, setArticles] = useState([]);
@@ -15,9 +17,9 @@ export default function Profile() {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                // Fetch user profile
-                const userResponse = await api.post("/auth/me");
-                setUser(userResponse.data.user);
+                // Fetch user profile by username
+                const userResponse = await api.get(`/user/${username}`);
+                setUser(userResponse.data);
             } catch (error) {
                 console.error("Error fetching user data:", error);
             } finally {
@@ -25,24 +27,22 @@ export default function Profile() {
             }
         };
 
-        fetchUserData();
-    }, []);
+        if (username) {
+            fetchUserData();
+        }
+    }, [username]);
 
     useEffect(() => {
         const fetchUserArticles = async () => {
             try {
-                const response = await api.get("/articles/published");
-                // Filter articles by current user (assuming the API returns all articles)
-                const userArticles = response.data.data.articles.filter(
-                    article => user && article.user_id === user.id
-                );
-                setArticles(userArticles);
+                const response = await api.get(`/articles/@${user.username}`);
+                setArticles(response.data.data.articles);
             } catch (error) {
                 console.error("Error fetching user articles:", error);
             }
         };
 
-        if (user) {
+        if (user && user.username) {
             fetchUserArticles();
         }
     }, [user]);
