@@ -350,6 +350,7 @@ export default function TestCreate() {
             formData.append('content', JSON.stringify(chunks));
             formData.append('status', 'published');
             formData.append('category_id', publishData.category);
+            formData.append('excerpt', chunks.content);
             
             // Add topics as comma-separated string
             if (publishData.topics) {
@@ -359,8 +360,8 @@ export default function TestCreate() {
             // Add featured image if selected
             if (publishData.featuredImage) {
                 formData.append('featured_image', publishData.featuredImage);
-            }
-
+            } 
+            
             const response = await api.post('/articles/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
