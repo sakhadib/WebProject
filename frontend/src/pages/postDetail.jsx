@@ -1,163 +1,213 @@
-export default function PostDetails(){
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import api from '../api/axios';
 
+export default function PostDetails() {
+    const { slug } = useParams();
+    const [article, setArticle] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    return(
-        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <header class="mb-12">
-                <div class="flex items-center space-x-2 mb-6">
-                    <span class="inline-block px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full">Technology</span>
-                    <span class="text-gray-500">•</span>
-                    <span class="text-sm text-gray-500">12 min read</span>
-                    <span class="text-gray-500">•</span>
-                    <time class="text-sm text-gray-500">Aug 8, 2025</time>
+    useEffect(() => {
+        const fetchArticle = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get(`/articles/${slug}`);
+                setArticle(response.data.data.article);
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching article:', err);
+                setError('Article not found or failed to load');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (slug) {
+            fetchArticle();
+        }
+    }, [slug]);
+
+    // Styles for content chunks (same as editor)
+    const styles = {
+        "h1": "text-4xl font-bold mb-8 text-black leading-tight",
+        "h2": "text-3xl font-bold mb-6 text-black leading-tight",
+        "h3": "text-2xl font-bold mb-4 text-black leading-tight",
+        "h4": "text-xl font-bold mb-3 text-black leading-tight",
+        "text": "text-lg text-gray-700 leading-relaxed mb-6",
+        "quote": "border-l-4 border-gray-400 pl-6 italic text-xl text-gray-800 mb-8 bg-gray-50 py-4",
+        "code": "bg-gray-900 text-gray-100 p-4 rounded-lg font-mono mb-6 overflow-x-auto",
+        "bullet": "mb-6",
+        "enumerate": "mb-6",
+        "caption": "text-sm text-gray-500 italic mb-4 text-center"
+    };
+
+    const renderContent = (chunks) => {
+        try {
+            const parsedChunks = typeof chunks === 'string' ? JSON.parse(chunks) : chunks;
+            
+            return parsedChunks.map((chunk, index) => {
+                const isListType = ['bullet', 'enumerate'].includes(chunk.style);
+                
+                if (isListType && chunk.points && chunk.points.length > 0) {
+                    return (
+                        <div key={index} className={styles[chunk.style]}>
+                            {chunk.style === 'bullet' ? (
+                                <ul className="list-disc list-inside space-y-2 text-lg text-gray-700 ml-4">
+                                    {chunk.points.map((point, pointIndex) => (
+                                        <li key={pointIndex}>{point}</li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <ol className="list-decimal list-inside space-y-2 text-lg text-gray-700 ml-4">
+                                    {chunk.points.map((point, pointIndex) => (
+                                        <li key={pointIndex}>{point}</li>
+                                    ))}
+                                </ol>
+                            )}
+                        </div>
+                    );
+                }
+
+                // Handle other content types
+                if (chunk.style === 'code') {
+                    return (
+                        <pre key={index} className={styles[chunk.style]}>
+                            <code>{chunk.content}</code>
+                        </pre>
+                    );
+                }
+
+                // Handle headings and regular text
+                const Tag = chunk.style.startsWith('h') ? chunk.style : 'p';
+                return (
+                    <Tag key={index} className={styles[chunk.style]}>
+                        {chunk.content}
+                    </Tag>
+                );
+            });
+        } catch (error) {
+            console.error('Error parsing content:', error);
+            return <p className="text-red-500">Error rendering content</p>;
+        }
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const calculateReadingTime = (content) => {
+        try {
+            const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+            const wordCount = parsedContent.reduce((total, chunk) => {
+                let words = 0;
+                if (chunk.content) {
+                    words += chunk.content.split(' ').length;
+                }
+                if (chunk.points && chunk.points.length > 0) {
+                    words += chunk.points.join(' ').split(' ').length;
+                }
+                return total + words;
+            }, 0);
+            
+            return Math.max(1, Math.ceil(wordCount / 200)); // 200 words per minute
+        } catch {
+            return 5; // Default reading time
+        }
+    };
+
+    if (loading) {
+        return (
+            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
+                    <div className="h-12 bg-gray-200 rounded w-3/4 mb-8"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-8"></div>
+                    <div className="h-64 bg-gray-200 rounded mb-8"></div>
+                    <div className="space-y-4">
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                        <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
+    if (error) {
+        return (
+            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Article Not Found</h1>
+                    <p className="text-gray-600">{error}</p>
+                </div>
+            </main>
+        );
+    }
+
+    if (!article) {
+        return null;
+    }
+
+    const readingTime = calculateReadingTime(article.content);
+
+    return (
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <header className="mb-12">
+                <div className="flex items-center space-x-2 mb-6">
+                    <span className="inline-block px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full">
+                        {article.category.name}
+                    </span>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-sm text-gray-500">{readingTime} min read</span>
+                    <span className="text-gray-500">•</span>
+                    <time className="text-sm text-gray-500">
+                        {formatDate(article.created_at)}
+                    </time>
                 </div>
 
-                <h1 class="text-5xl font-bold text-black mb-8 leading-tight font-medium">
-                    The Future of Artificial Intelligence: What We Can Expect in the Next Decade
+                <h1 className="text-5xl font-bold text-black mb-8 leading-tight">
+                    {article.title}
                 </h1>
 
-                <div class="flex items-center space-x-4 mb-8">
-                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" 
-                        alt="Alex Chen" 
-                        class="w-12 h-12 rounded-full object-cover" />
-                    <div>
-                        <div class="font-medium text-gray-900">Alex Chen</div>
-                        <div class="text-sm text-gray-600">Senior AI Researcher at TechCorp</div>
+                <div className="flex items-center space-x-4 mb-8">
+                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                        <span className="text-lg font-semibold text-gray-600">
+                            {article.user.username.charAt(0).toUpperCase()}
+                        </span>
                     </div>
-                    <div class="flex-1"></div>
-                    <button class="px-4 py-2 border border-black text-black hover:bg-black hover:text-white transition-colors duration-200 text-sm font-medium">
+                    <div>
+                        <div className="font-medium text-gray-900">{article.user.username}</div>
+                        <div className="text-sm text-gray-600">{article.user.email}</div>
+                    </div>
+                    <div className="flex-1"></div>
+                    <button className="px-4 py-2 border border-black text-black hover:bg-black hover:text-white transition-colors duration-200 text-sm font-medium">
                         Follow
                     </button>
                 </div>
 
-                <div class="mb-12">
-                    <img 
-                        src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=600&fit=crop&crop=smart" 
-                        alt="AI Technology Future" 
-                        class="w-full h-96 object-cover rounded-lg"/>
-                    <p class="text-sm text-gray-500 mt-2 text-center">The future of AI holds unprecedented possibilities for humanity</p>
-                </div>
+                {article.featured_image && (
+                    <div className="mb-12">
+                        <img 
+                            src={`http://127.0.0.1:5050/storage/${article.featured_image}`}
+                            alt={article.title}
+                            className="w-full h-96 object-cover rounded-lg"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                            }}
+                        />
+                    </div>
+                )}
             </header>
 
-            <article class="prose prose-lg max-w-none">
-                <p class="text-xl text-gray-700 leading-relaxed mb-8">
-                    As we stand at the precipice of a new era in technology, artificial intelligence continues to evolve at an unprecedented pace. From healthcare to transportation, AI is reshaping every aspect of our daily lives, promising both extraordinary opportunities and complex challenges that will define the next decade.
-                </p>
-
-                <h2 class="text-3xl font-bold text-black mt-12 mb-6">The Current State of AI Development</h2>
-                
-                <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                    Today's artificial intelligence landscape is characterized by rapid advancement in machine learning, natural language processing, and computer vision. Major tech companies are investing billions in AI research, while startups are finding innovative applications across industries.
-                </p>
-
-                <blockquote class="border-l-4 border-black pl-6 py-4 my-8 bg-gray-50 italic text-xl text-gray-800">
-                    "The development of full artificial intelligence could spell the end of the human race... but it also could be the greatest thing that's ever happened to us."
-                    <footer class="text-base text-gray-600 mt-2 not-italic">— Stephen Hawking</footer>
-                </blockquote>
-
-                <h2 class="text-3xl font-bold text-black mt-12 mb-6">Key Areas of AI Advancement</h2>
-                
-                <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                    The next decade will see significant breakthroughs in several critical areas. Let's examine the most promising developments:
-                </p>
-
-                <ol class="list-decimal list-inside space-y-3 mb-8 text-lg text-gray-700">
-                    <li><strong>Autonomous Systems:</strong> Self-driving cars, drones, and robots will become mainstream</li>
-                    <li><strong>Healthcare AI:</strong> Personalized medicine and diagnostic tools will revolutionize treatment</li>
-                    <li><strong>Natural Language Processing:</strong> AI assistants will achieve human-level conversation</li>
-                    <li><strong>Computer Vision:</strong> Real-time image analysis will enhance security and automation</li>
-                    <li><strong>Quantum AI:</strong> Quantum computing will exponentially increase AI capabilities</li>
-                </ol>
-
-                <p class="text-lg text-gray-700 leading-relaxed mb-4">
-                    The implications of these advances will be felt across multiple sectors:
-                </p>
-                
-                <ul class="list-disc list-inside space-y-2 mb-8 text-lg text-gray-700">
-                    <li>Manufacturing and automation efficiency</li>
-                    <li>Financial services and fraud detection</li>
-                    <li>Education and personalized learning</li>
-                    <li>Entertainment and content creation</li>
-                    <li>Environmental monitoring and climate change</li>
-                    <li>Space exploration and research</li>
-                </ul>
-
-
-                <h2 class="text-3xl font-bold text-black mt-12 mb-6">The Mathematics Behind AI Progress</h2>
-                
-                <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                    Understanding AI requires grasping some fundamental mathematical concepts. The learning rate in neural networks can be expressed as:
-                </p>
-                
-                <div class="bg-gray-50 p-6 rounded-lg my-8">
-                    <p class="text-center text-lg">
-                        {'θₜ₊₁ = θₜ - α ∇θ J(θ)'}
-                    </p>
-                    <p class="text-sm text-gray-600 mt-4 text-center">
-                        Where θ represents parameters, α is the learning rate, and ∇J(θ) is the gradient of the cost function.
-                    </p>
-                </div>
-
-                <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                    The sigmoid activation function, crucial for neural networks, is defined as: σ(x) = 1 / (1 + e<sup>-x</sup>)
-                </p>
-
-                <h2 class="text-3xl font-bold text-black mt-12 mb-6">Implementing AI: A Code Example</h2>
-                
-                <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                    Here's a simple implementation of a neural network layer in Python:
-                </p>
-
-                <pre class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto my-8"><code class="language-python">import numpy as np
-
-    class NeuralLayer:
-        def __init__(self, input_size, output_size):
-            self.weights = np.random.randn(input_size, output_size) * 0.1
-            self.bias = np.zeros((1, output_size))
-        
-        def forward(self, inputs):
-            self.inputs = inputs
-            self.output = np.dot(inputs, self.weights) + self.bias
-            return self.sigmoid(self.output)
-        
-        def sigmoid(self, x):
-            return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
-        
-        def backward(self, gradient):
-            # Backpropagation implementation
-            sigmoid_derivative = self.output * (1 - self.output)
-            delta = gradient * sigmoid_derivative
-            
-            self.weight_gradient = np.dot(self.inputs.T, delta)
-            self.bias_gradient = np.sum(delta, axis=0, keepdims=True)
-            
-            return np.dot(delta, self.weights.T)</code></pre>
-
-
-                <figure class="my-12">
-                    <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=600&fit=crop&crop=smart" 
-                        alt="Neural Network Visualization" 
-                        class="w-full h-80 object-cover rounded-lg"/>
-                    <figcaption class="text-sm text-gray-600 mt-3 text-center">
-                        Visual representation of a neural network architecture showing interconnected nodes and layers
-                    </figcaption>
-                </figure>
-
-                <h2 class="text-3xl font-bold text-black mt-12 mb-6">Challenges and Considerations</h2>
-                
-                <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                    While the potential of AI is immense, we must address several critical challenges:
-                </p>
-
-                <blockquote class="border-l-4 border-gray-300 pl-6 py-4 my-8 bg-gray-50 text-lg text-gray-700">
-                    The question isn't whether AI will change our world—it's how we can ensure that change benefits everyone.
-                </blockquote>
-
-                <p class="text-lg text-gray-700 leading-relaxed mb-8">
-                    As we move forward, collaboration between technologists, policymakers, and ethicists will be crucial in shaping an AI-powered future that serves humanity's best interests.
-                </p>
+            <article className="prose prose-lg max-w-none">
+                {renderContent(article.content)}
             </article>
-
         </main>
-    )
+    );
 }

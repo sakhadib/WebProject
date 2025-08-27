@@ -1,34 +1,50 @@
-export default function Article() {
+import { useNavigate } from 'react-router-dom';
+
+export default function Article({title, category, author, date, summary, image, author_avatar, slug}) {
+    const navigate = useNavigate();
+
+    const handleArticleClick = () => {
+        if (slug) {
+            navigate(`/article/${slug}`);
+        }
+    };
+
     return (
         <article className="group mb-12">
             <div className="flex flex-col space-y-4">
                 <div className="flex items-center space-x-3">
                     <img
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+                        src={author_avatar}
                         alt="Author"
                         className="w-8 h-8 rounded-full object-cover"
                     />
                     <div className="flex items-center space-x-2 text-sm">
-                        <span className="font-medium text-gray-900">Alex Chen</span>
+                        <span className="font-medium text-gray-900">{author}</span>
                         <span className="text-gray-500">•</span>
-                        <span className="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">Technology</span>
+                        <span className="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">{category}</span>
                         <span className="text-gray-500">•</span>
-                        <time className="text-gray-500">Aug 8, 2025</time>
+                        <time className="text-gray-500">{date}</time>
                     </div>
                 </div>
                 <div className="flex items-start space-x-6">
                     <div className="flex-1">
-                        <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight">
-                            The Future of Artificial Intelligence: What We Can Expect in the Next Decade
+                        <h3 
+                            className="text-2xl font-bold text-black mb-3 group-hover:text-gray-700 transition-colors duration-200 cursor-pointer leading-tight"
+                            onClick={handleArticleClick}
+                        >
+                            {title}
                         </h3>
                         <p className="text-gray-600 text-lg leading-relaxed mb-4 line-clamp-3">
-                            As we stand at the precipice of a new era in technology, artificial intelligence continues to evolve at an unprecedented pace. From healthcare to transportation, AI is reshaping every aspect of our daily lives...
+                            {summary}
                         </p>
                     </div>
-                    <div className="w-32 h-20 bg-gray-200 rounded flex-shrink-0">
+                    <div 
+                        className="w-32 h-20 bg-gray-200 rounded flex-shrink-0 cursor-pointer"
+                        onClick={handleArticleClick}
+                    >
                         <img
-                            src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&h=200&fit=crop&crop=smart"
-                            alt="AI Technology"
+                            src={image}
+                            alt="Article"
                             className="w-full h-full object-cover rounded"
                         />
                     </div>
@@ -48,7 +64,14 @@ export default function Article() {
                             <span>18</span>
                         </div>
                     </div>
-                    <a href="#" className="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium">
+                    <a 
+                        href={`/article/${slug}`} 
+                        className="text-sm text-gray-600 hover:text-black transition-colors duration-200 font-medium"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleArticleClick();
+                        }}
+                    >
                         Read story →
                     </a>
                 </div>
