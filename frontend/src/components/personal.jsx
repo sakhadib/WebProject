@@ -74,10 +74,6 @@ export default function ProfilePersonal({ user, articlesCount = 0, collectionsCo
                 </div>
                 <div className="flex items-center space-x-8 mb-8">
                     <div className="text-center">
-                        <div className="text-2xl font-bold text-black">0</div>
-                        <div className="text-sm text-gray-600">Followers</div>
-                    </div>
-                    <div className="text-center">
                         <div className="text-2xl font-bold text-black">{articlesCount}</div>
                         <div className="text-sm text-gray-600">Posts</div>
                     </div>
@@ -86,14 +82,7 @@ export default function ProfilePersonal({ user, articlesCount = 0, collectionsCo
                         <div className="text-sm text-gray-600">Collections</div>
                     </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <button className="px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-200 font-medium">
-                        Follow
-                    </button>
-                    <button className="px-6 py-3 border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-colors duration-200 font-medium">
-                        Message
-                    </button>
-                </div>
+                
             </div>
         </section>
     );
