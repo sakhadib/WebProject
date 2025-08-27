@@ -45,6 +45,7 @@ Route::group([
 
 
 Route::get('user/{username}', [ProfileController::class, 'profile'])->name('api.user.show');
+Route::get('user/{username}/collections', [ProfileController::class, 'collections'])->name('api.user.collections');
 
 
 

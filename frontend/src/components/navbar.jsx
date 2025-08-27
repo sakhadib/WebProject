@@ -62,7 +62,7 @@ export default function Navbar() {
                         {isAuthenticated ? (
                             <>
                                 <Link to="/write" className="text-white bg-black px-4 py-1 rounded-full font-semibold hover:bg-gray-900 transition-colors duration-200">Write</Link>
-                                <Link to="/profile" className="text-gray-600 hover:text-black transition-colors duration-200">{username || "Profile"}</Link>
+                                <Link to={`/profile/${username}`} className="text-gray-600 hover:text-black transition-colors duration-200">{username || "Profile"}</Link>
                                 <a href="/logout" onClick={handleLogout} className="text-gray-600 hover:text-black transition-colors duration-200">Logout</a>
                             </>
                         ) : (

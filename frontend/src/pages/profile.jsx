@@ -50,17 +50,17 @@ export default function Profile() {
     useEffect(() => {
         const fetchUserCollections = async () => {
             try {
-                const response = await api.get("/article/collections");
+                const response = await api.get(`/user/${username}/collections`);
                 setCollections(response.data.data);
             } catch (error) {
                 console.error("Error fetching user collections:", error);
             }
         };
 
-        if (user) {
+        if (username) {
             fetchUserCollections();
         }
-    }, [user]);
+    }, [username]);
 
     // Format date
     const formatDate = (dateString) => {
