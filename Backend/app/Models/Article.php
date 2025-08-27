@@ -108,6 +108,12 @@ class Article extends Model
         return $this->belongsToMany(Topic::class, 'article_topics');
     }
 
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     /**
      * Scope to get only published articles
      */

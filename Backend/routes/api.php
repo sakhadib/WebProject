@@ -12,6 +12,7 @@ use App\Http\Controllers\Article\ArticleController;
 use App\Http\Controllers\Publication\PublicationController;
 use App\Http\Controllers\Topic\TopicController;
 use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\CommentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -46,6 +47,8 @@ Route::group([
 
 Route::get('user/{username}', [ProfileController::class, 'profile'])->name('api.user.show');
 Route::get('user/{username}/collections', [ProfileController::class, 'collections'])->name('api.user.collections');
+Route::get('articles/{id}/getcomments', [CommentController::class, 'index'])->name('api.articles.comments.index');
+Route::get('articles/{slug}/getcommentcount', [CommentController::class, 'getCommentCount'])->name('api.articles.comments.count');
 
 
 
@@ -117,6 +120,9 @@ Route::group([
         // Status management
         Route::patch('/{id}/publish', [ArticleController::class, 'publish'])->name('api.articles.publish');
         Route::patch('/{id}/draft', [ArticleController::class, 'makeDraft'])->name('api.articles.make-draft');
+
+        Route::post('/{id}/comments', [CommentController::class, 'store'])->name('api.articles.comments.store');
+
     });
 });
 

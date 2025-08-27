@@ -1,7 +1,24 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+
+import api from '../api/axios';
 
 export default function Article({title, category, author, date, summary, image, author_avatar, slug}) {
     const navigate = useNavigate();
+    const [commentCount, setCommentCount] = useState(0);
+
+    useEffect(() => {
+        const fetchTopPublications = async () => {
+            try {
+                const response = await api.get(`/articles/${slug}/getcommentcount`);
+                setCommentCount(response.data.comment_count);
+            } catch (error) {
+                console.error("Error fetching comment count:", error);
+            }
+        };
+
+        fetchTopPublications();
+    }, [slug]);
 
     const handleArticleClick = () => {
         if (slug) {
@@ -51,17 +68,17 @@ export default function Article({title, category, author, date, summary, image, 
                 </div>
                 <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center space-x-6 text-sm text-gray-500">
-                        <div className="flex items-center space-x-1 hover:text-black transition-colors duration-200 cursor-pointer">
+                        {/* <div className="flex items-center space-x-1 hover:text-black transition-colors duration-200 cursor-pointer">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                             <span>247</span>
-                        </div>
+                        </div> */}
                         <div className="flex items-center space-x-1 hover:text-black transition-colors duration-200 cursor-pointer">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
-                            <span>18</span>
+                            <span>{commentCount}</span>
                         </div>
                     </div>
                     <a 
