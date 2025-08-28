@@ -310,7 +310,7 @@ export default function PostDetails() {
                 <div className="flex items-center space-x-4 mb-8">
                     <div className="w-12 h-12 rounded-full overflow-hidden">
                         <img 
-                            src={article.user.avatar} 
+                            src={`http://127.0.0.1:5050/storage/${article.user.avatar}`} 
                             alt={`${article.user.username}'s avatar`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -370,7 +370,7 @@ export default function PostDetails() {
                         <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                             {user?.avatar ? (
                                 <img
-                                    src={user.avatar}
+                                    src={`http://127.0.0.1:5050/storage/${user.avatar}`}
                                     alt={`${user.username || 'User'}'s avatar`}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {

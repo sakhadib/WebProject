@@ -28,17 +28,30 @@ export default function Article({ title, category, author, date, summary, image,
         }
     };
 
+    const handleProfileClick = (e) => {
+        e.stopPropagation(); // Prevent article click when clicking on profile
+        if (author) {
+            navigate(`/profile/${author}`);
+        }
+    };
+
     return (
         <article className="group mb-12">
             <div className="flex flex-col space-y-4">
                 <div className="flex items-center space-x-3">
                     <img
-                        src={author_avatar}
+                        src={`http://127.0.0.1:5050/storage/${author_avatar}`}
                         alt="Author"
-                        className="w-8 h-8 rounded-full object-cover"
+                        className="w-8 h-8 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                        onClick={handleProfileClick}
                     />
                     <div className="flex items-center space-x-2 text-sm">
-                        <span className="font-medium text-gray-900">{author}</span>
+                        <span 
+                            className="font-medium text-gray-900 cursor-pointer hover:text-black transition-colors duration-200"
+                            onClick={handleProfileClick}
+                        >
+                            {author}
+                        </span>
                         <span className="text-gray-500">•</span>
                         <span className="inline-block px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">{category}</span>
                         <span className="text-gray-500">•</span>
