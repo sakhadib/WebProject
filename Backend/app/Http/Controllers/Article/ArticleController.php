@@ -209,6 +209,27 @@ class ArticleController extends Controller
         }
     }
 
+
+    public function updateShow($slug){
+        $article = Article::with(['user:id,username,email,avatar', 'category:id,name'])
+                          ->where('slug', $slug)
+                          ->firstOrFail();
+
+        if ($article->user_id !== auth('api')->user()->id) {
+            return response()->json([
+                'error' => 'Unauthorized',
+                'message' => 'You can only update your own articles'
+            ], 403);
+        }
+
+        return response()->json([
+            'message' => 'Article retrieved successfully',
+            'data' => [
+                'article' => $article
+            ]
+        ], 200);
+    }
+
     /**
      * Update the specified article
      */

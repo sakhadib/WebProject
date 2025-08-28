@@ -111,6 +111,7 @@ Route::group([
     Route::middleware('auth:api')->group(function () {
         // CRUD operations
         Route::post('/', [ArticleController::class, 'store'])->name('api.articles.store');
+        Route::get('/get/update/{slug}', [ArticleController::class, 'updateShow'])->name('api.articles.update.show');
         Route::post('/update/{id}', [ArticleController::class, 'update'])->name('api.articles.update');
         Route::delete('/{id}', [ArticleController::class, 'destroy'])->name('api.articles.destroy');
         

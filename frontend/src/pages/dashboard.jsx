@@ -38,7 +38,7 @@ export default function DashBoardPage() {
     };
 
     const handleEdit = (slug) => {
-        navigate(`/article/edit/${slug}`);
+        navigate(`/update/${slug}`);
     };
 
     const handleDelete = async (articleId, title) => {
