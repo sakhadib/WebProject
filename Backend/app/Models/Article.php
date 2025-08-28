@@ -114,6 +114,12 @@ class Article extends Model
         return $this->hasMany(Comment::class);
     }
 
+
+    public function views()
+    {
+        return $this->hasMany(View::class);
+    }
+
     /**
      * Scope to get only published articles
      */

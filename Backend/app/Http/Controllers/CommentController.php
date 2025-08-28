@@ -45,9 +45,11 @@ class CommentController extends Controller
     {
         $article = Article::where('slug', $slug)->firstOrFail();
         $commentCount = $article->comments()->count();
+        $viewCount = $article->views()->count();
 
         return response()->json([
             'comment_count' => $commentCount,
+            'view_count' => $viewCount,
         ]);
     }
 }

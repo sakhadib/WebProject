@@ -12,6 +12,7 @@ use App\Models\Article;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Topic;
+use App\Models\View;
 
 /**
  * Class ArticleController
@@ -185,6 +186,8 @@ class ArticleController extends Controller
                              ->where('slug', $slug)
                              ->published()
                              ->firstOrFail();
+
+            View::create(['article_id' => $article->id]);
 
             return response()->json([
                 'message' => 'Article retrieved successfully',
