@@ -16,6 +16,7 @@ import Footer from './components/footer'
 import Navbar from './components/navbar'
 import TopicShow from './pages/topicShow'
 import DashBoardPage from './pages/dashboard'
+import ProtectedRoute from './components/ProtectedRoute'
 
 export default function App() {
   return (
@@ -26,17 +27,33 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile/:username" element={<Profile />} />
-        <Route path="/collections" element={<Collections />} />
+        <Route path="/collections" element={
+          <ProtectedRoute>
+            <Collections />
+          </ProtectedRoute>
+        } />
         <Route path="/collection/:slug" element={<IndividualCollection />} />
         <Route path="/topic/:slug" element={<TopicShow />} />
 
         <Route path="/post/:slug" element={<PostDetails />} />
         <Route path="/article/:slug" element={<PostDetails />} />
 
-        <Route path="/dashboard" element={<DashBoardPage />}/>
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashBoardPage />
+          </ProtectedRoute>
+        }/>
 
-        <Route path="/write" element={<TestCreate />} />
-        <Route path="/create" element={<TestCreate />} />
+        <Route path="/write" element={
+          <ProtectedRoute>
+            <TestCreate />
+          </ProtectedRoute>
+        } />
+        <Route path="/create" element={
+          <ProtectedRoute>
+            <TestCreate />
+          </ProtectedRoute>
+        } />
         {/* Add more routes as needed */}
       </Routes>
       <Footer />
