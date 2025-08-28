@@ -20,7 +20,7 @@ export default function TestCreate() {
 
     const [title, setTitle] = useState('');
     const [chunks, setChunks] = useState([
-        { serial: 2, style: 'text', content: 'Start writing your blog post here...' }
+        { serial: 2, style: 'text', content: '' }
     ]);
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [showStylePopup, setShowStylePopup] = useState(null);
@@ -538,7 +538,15 @@ export default function TestCreate() {
             <textarea
                 value={chunk.content}
                 onChange={(e) => updateChunk(index, 'content', e.target.value)}
-                placeholder={`Type your ${chunk.style === 'code' ? 'code' : chunk.style.startsWith('h') ? 'heading' : 'content'} here...`}
+                placeholder={
+                    chunk.style === 'code' 
+                        ? 'Write your code here...' 
+                        : chunk.style.startsWith('h') 
+                            ? 'Write your heading...' 
+                            : index === 0 && chunks.length === 1 
+                                ? 'Start writing your blog post here...' 
+                                : 'Type something...'
+                }
                 className={getInputClassName()}
                 rows={chunk.style.startsWith('h') ? 1 : 1}
                 data-is-heading={chunk.style.startsWith('h')}
