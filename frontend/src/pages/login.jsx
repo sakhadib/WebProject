@@ -1,32 +1,27 @@
 
 import { useState } from "react";
 import api from "../api/axios";
-
+import { useAuth } from "../context/AuthContext";
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const { login } = useAuth(); 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setLoading(true);
         try {
-            const response = await api.post("/auth/login", {
-                email,
-                password,
-            });
-            // Store the token in localStorage
-            localStorage.setItem('token', response.data.access_token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            await login(email,password);
             // Redirect or update UI as needed
             window.location.href = "/";
         } catch (err) {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
-                setError("Login failed. Please try again.");
+                setError("Login failed. Please try again." + err);
             }
         } finally {
             setLoading(false);
