@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import ProfilePersonal from "../components/personal";
 import Article from "../components/article";
@@ -7,15 +7,36 @@ import CollectionCard from "../components/collectionCard";
 
 export default function Profile() {
     const { username } = useParams();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("recent");
     const [user, setUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const [articles, setArticles] = useState([]);
     const [collections, setCollections] = useState([]);
+    const [drafts, setDrafts] = useState([]);
 
     // separate loading states
     const [loadingUser, setLoadingUser] = useState(true);
     const [loadingArticles, setLoadingArticles] = useState(true);
     const [loadingCollections, setLoadingCollections] = useState(true);
+    const [loadingDrafts, setLoadingDrafts] = useState(false);
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const response = await api.post('/auth/me');
+                    setCurrentUser(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching current user:", error);
+                // User not authenticated, that's okay
+            }
+        };
+
+        fetchCurrentUser();
+    }, []);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -37,7 +58,8 @@ export default function Profile() {
         const fetchUserArticles = async () => {
             try {
                 setLoadingArticles(true);
-                const response = await api.get(`/articles/@${user.username}`);
+                // Always request only published articles for the Recent Posts tab
+                const response = await api.get(`/articles/@${user.username}?status=published`);
                 setArticles(response.data.data.articles);
             } catch (error) {
                 console.error("Error fetching user articles:", error);
@@ -64,6 +86,45 @@ export default function Profile() {
 
         if (username) fetchUserCollections();
     }, [username]);
+
+    useEffect(() => {
+        const fetchDrafts = async () => {
+            try {
+                setLoadingDrafts(true);
+                const response = await api.get('/articles/my/drafts');
+                setDrafts(response.data.data.drafts);
+            } catch (error) {
+                console.error("Error fetching drafts:", error);
+            } finally {
+                setLoadingDrafts(false);
+            }
+        };
+
+        // Only fetch drafts if current user is viewing their own profile
+        if (currentUser && user && currentUser.username === user.username) {
+            fetchDrafts();
+        }
+    }, [currentUser, user]);
+
+    const handlePublishDraft = async (articleId) => {
+        try {
+            await api.patch(`/articles/${articleId}/publish`);
+            // Remove the published article from drafts
+            setDrafts(prev => prev.filter(draft => draft.id !== articleId));
+            // Optionally, you could also refresh the articles list
+            alert("Article published successfully!");
+        } catch (error) {
+            console.error("Error publishing article:", error);
+            alert("Failed to publish article. Please try again.");
+        }
+    };
+
+    const handleEditDraft = (slug) => {
+        navigate(`/article/edit/${slug}`);
+    };
+
+    // Check if the current user is viewing their own profile
+    const isOwnProfile = currentUser && user && currentUser.username === user.username;
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -147,6 +208,18 @@ export default function Profile() {
                         >
                             Collections ({collections.length})
                         </button>
+                        {isOwnProfile && (
+                            <button
+                                className={`border-b-2 py-2 px-1 text-sm font-medium ${
+                                    activeTab === "drafts"
+                                        ? "border-black text-black"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                }`}
+                                onClick={() => setActiveTab("drafts")}
+                            >
+                                Drafts ({drafts.length})
+                            </button>
+                        )}
                         <button
                             className={`border-b-2 py-2 px-1 text-sm font-medium ${
                                 activeTab === "about"
@@ -259,6 +332,118 @@ export default function Profile() {
                                         user={user}
                                     />
                                 ))}
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {activeTab === "drafts" && isOwnProfile && (
+                    <>
+                        {loadingDrafts ? (
+                            <SkeletonLoader />
+                        ) : drafts.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg
+                                        className="w-8 h-8 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                    No drafts yet
+                                </h3>
+                                <p className="text-gray-500">
+                                    Your draft articles will appear here.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+                                <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                                    <h3 className="text-lg font-medium text-gray-900">Draft Articles</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Manage your unpublished articles</p>
+                                </div>
+                                
+                                {/* Table */}
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Title
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Category
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Created
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Updated
+                                                </th>
+                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {drafts.map((draft) => (
+                                                <tr key={draft.id} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
+                                                            {draft.title}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        {draft.category ? (
+                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                {draft.category.name}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-sm text-gray-500">Uncategorized</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {formatDate(draft.created_at)}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {formatDate(draft.updated_at)}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <div className="flex items-center justify-end space-x-2">
+                                                            <button
+                                                                onClick={() => handleEditDraft(draft.slug)}
+                                                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-200"
+                                                            >
+                                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                </svg>
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handlePublishDraft(draft.id)}
+                                                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-200"
+                                                            >
+                                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                                </svg>
+                                                                Publish
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         )}
                     </>

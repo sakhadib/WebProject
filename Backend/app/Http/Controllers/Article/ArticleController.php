@@ -577,7 +577,7 @@ class ArticleController extends Controller
             $status = $request->input('status');
             $sort = $request->input('sort', 'latest');
 
-            $query = Article::with(['user:id,username,email', 'category:id,name'])
+            $query = Article::with(['user:id,username,email,avatar', 'category:id,name'])
                            ->where('user_id', $user->id);
 
             // Check if requesting user is the same as the profile user
@@ -714,6 +714,34 @@ class ArticleController extends Controller
             return response()->json([
                 'error' => 'Retrieval failed',
                 'message' => 'An unexpected error occurred while retrieving the article'
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Get all the drafts by me
+     */
+    public function getDraftsByMe()
+    {
+        try {
+            $user = auth('api')->user();
+
+            $drafts = Article::where('user_id', $user->id)
+                ->where('status', 'draft')
+                ->with(['user:id,username,email,avatar', 'category:id,name'])
+                ->get();
+
+            return response()->json([
+                'message' => 'Draft articles retrieved successfully',
+                'data' => [
+                    'drafts' => $drafts
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Retrieval failed',
+                'message' => 'An unexpected error occurred while retrieving draft articles'
             ], 500);
         }
     }

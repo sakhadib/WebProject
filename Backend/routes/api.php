@@ -116,6 +116,8 @@ Route::group([
         
         // User's articles
         Route::get('/my/articles', [ArticleController::class, 'myArticles'])->name('api.articles.my-articles');
+        Route::get('/my/drafts', [ArticleController::class, 'getDraftsByMe'])->name('api.articles.my-drafts');
+        
         
         // Status management
         Route::patch('/{id}/publish', [ArticleController::class, 'publish'])->name('api.articles.publish');
