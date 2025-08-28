@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import Comment from '../components/singleComment';
+import { useAuth } from '../context/AuthContext';
 
 export default function PostDetails() {
     const { slug } = useParams();
+    const { user } = useAuth();
     const [article, setArticle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -306,10 +308,22 @@ export default function PostDetails() {
                 </h1>
 
                 <div className="flex items-center space-x-4 mb-8">
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span className="text-lg font-semibold text-gray-600">
-                            {article.user.username.charAt(0).toUpperCase()}
-                        </span>
+                    <div className="w-12 h-12 rounded-full overflow-hidden">
+                        <img 
+                            src={article.user.avatar} 
+                            alt={`${article.user.username}'s avatar`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                // Fallback to letter avatar if image fails to load
+                                e.target.outerHTML = `
+                                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                        <span class="text-lg font-semibold text-gray-600">
+                                            ${article.user.username.charAt(0).toUpperCase()}
+                                        </span>
+                                    </div>
+                                `;
+                            }}
+                        />
                     </div>
                     <div>
                         <div className="font-medium text-gray-900">{article.user.username}</div>
@@ -353,10 +367,30 @@ export default function PostDetails() {
                 {/* Comment Form */}
                 <form onSubmit={handleSubmitComment} className="mb-12">
                     <div className="flex space-x-4">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-sm font-semibold text-gray-600">
-                                You
-                            </span>
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                            {user?.avatar ? (
+                                <img
+                                    src={user.avatar}
+                                    alt={`${user.username || 'User'}'s avatar`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // Fallback to letter avatar if image fails to load
+                                        e.target.outerHTML = `
+                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                                <span class="text-sm font-semibold text-gray-600">
+                                                    ${(user?.username || 'U').charAt(0).toUpperCase()}
+                                                </span>
+                                            </div>
+                                        `;
+                                    }}
+                                />
+                            ) : (
+                                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                    <span className="text-sm font-semibold text-gray-600">
+                                        {(user?.username || 'U').charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                         <div className="flex-1">
                             <textarea

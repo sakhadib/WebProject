@@ -182,7 +182,7 @@ class ArticleController extends Controller
     public function show($slug)
     {
         try {
-            $article = Article::with(['user:id,username,email', 'category:id,name'])
+            $article = Article::with(['user:id,username,email,avatar', 'category:id,name'])
                              ->where('slug', $slug)
                              ->published()
                              ->firstOrFail();
