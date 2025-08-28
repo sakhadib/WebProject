@@ -88,7 +88,7 @@ export default function Navbar() {
                   Dashboard
                 </Link>
                 <Link
-                  to={`/profile/${username}`}
+                  to="/settings"
                   className="text-gray-600 hover:text-black transition-colors duration-200"
                 >
                   {username || "Profile"}

@@ -95,11 +95,31 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      if (!isTokenExpired()) {
+        const response = await api.post("/auth/me");
+        const userData = response.data;
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        return userData;
+      }
+    } catch (error) {
+      console.error("Failed to refresh user data:", error);
+      // If refresh fails and token is expired, logout
+      if (isTokenExpired()) {
+        clearAuth();
+      }
+      throw error; // Re-throw the error so calling components can handle it
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
       login, 
       logout, 
+      refreshUser,
       isAuthenticated, 
       loading,
       isTokenExpired 

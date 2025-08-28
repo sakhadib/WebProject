@@ -14,6 +14,7 @@ export default function Profile() {
     const [articles, setArticles] = useState([]);
     const [collections, setCollections] = useState([]);
     const [drafts, setDrafts] = useState([]);
+    const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
 
     // separate loading states
     const [loadingUser, setLoadingUser] = useState(true);
@@ -120,7 +121,67 @@ export default function Profile() {
     };
 
     const handleEditDraft = (slug) => {
-        navigate(`/article/edit/${slug}`);
+        navigate(`/update/${slug}`);
+    };
+
+    const handleAvatarUpdate = async (file) => {
+        if (!file) return;
+
+        try {
+            setIsUpdatingAvatar(true);
+            
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const response = await api.post('/user/update-avatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Update the user state with new avatar
+            setUser(prev => ({
+                ...prev,
+                avatar: response.data.data.avatar_path
+            }));
+
+            // Also update current user if it's the same user
+            if (currentUser && currentUser.username === user.username) {
+                setCurrentUser(prev => ({
+                    ...prev,
+                    avatar: response.data.data.avatar_path
+                }));
+            }
+
+            alert('Profile picture updated successfully!');
+        } catch (error) {
+            console.error('Error updating avatar:', error);
+            if (error.response?.data?.errors) {
+                const errorMessages = Object.values(error.response.data.errors).flat();
+                alert('Error updating avatar:\n' + errorMessages.join('\n'));
+            } else {
+                alert('Failed to update profile picture. Please try again.');
+            }
+        } finally {
+            setIsUpdatingAvatar(false);
+        }
+    };
+
+    const handleFileSelect = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            // Validate file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB.');
+                return;
+            }
+            handleAvatarUpdate(file);
+        }
     };
 
     // Check if the current user is viewing their own profile
@@ -183,6 +244,9 @@ export default function Profile() {
                 user={user}
                 articlesCount={articles.length}
                 collectionsCount={collections.length}
+                isOwnProfile={isOwnProfile}
+                onAvatarUpdate={handleFileSelect}
+                isUpdatingAvatar={isUpdatingAvatar}
             />
 
             <section className="mb-8">

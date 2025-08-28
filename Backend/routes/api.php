@@ -53,7 +53,7 @@ Route::get('articles/{slug}/getcommentcount', [CommentController::class, 'getCom
 
 
 Route::group([
-    'middleware' => ['api'],
+    'middleware' => ['api', 'auth:api'],
     'prefix' => 'user'
 
 ], function ($router) {
@@ -63,6 +63,8 @@ Route::group([
     Route::post('socialmedia/add', [SocialMediaController::class, 'create'])->name('api.user.social-media.create');
     Route::post('socialmedia/update/{id}', [SocialMediaController::class, 'update'])->name('api.user.social-media.update');
     Route::post('socialmedia/delete/{id}', [SocialMediaController::class, 'delete'])->name('api.user.social-media.delete');
+    Route::post('update-avatar', [ProfileController::class, 'updateProfilePicture'])->name('api.user.update-avatar');
+    Route::post('update-profile', [ProfileController::class, 'updateProfile'])->name('api.user.update-profile');
 });
 
 

@@ -11,6 +11,7 @@ import CreateBlog from './pages/CreateBlog'
 
 import TestCreate from './pages/testCreate'
 import UpdatePost from './pages/updatePost'
+import Settings from './pages/settings'
 
 import BlogPost from './pages/BlogDetails'
 import Footer from './components/footer'
@@ -58,6 +59,11 @@ export default function App() {
         <Route path="/update/:slug" element={
           <ProtectedRoute>
             <UpdatePost />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         } />
         {/* Add more routes as needed */}
