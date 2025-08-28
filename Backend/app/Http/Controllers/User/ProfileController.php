@@ -81,7 +81,8 @@ class ProfileController extends Controller
                 'data' => [
                     'avatar_url' => Storage::url($imagePath),
                     'avatar_path' => $imagePath
-                ]
+                ],
+                'user' => $user
             ], 200);
 
         } catch (ValidationException $e) {
