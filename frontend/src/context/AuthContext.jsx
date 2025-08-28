@@ -4,40 +4,106 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Function to check if token is expired
+  const isTokenExpired = () => {
+    const tokenExpiry = localStorage.getItem("tokenExpiry");
+    if (!tokenExpiry) return true;
+    return Date.now() > parseInt(tokenExpiry);
+  };
+
+  // Function to clear authentication data
+  const clearAuth = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("tokenExpiry");
+    setUser(null);
+    setIsAuthenticated(false);
+  };
 
   // Check session on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
-    if (token) {
-      // Try to get username from localStorage (set after login), fallback to 'Profile'
+    
+    if (token && !isTokenExpired()) {
+      setIsAuthenticated(true);
       const storedUser = localStorage.getItem("user");
-      setUser(JSON.parse(storedUser));
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } else if (token && isTokenExpired()) {
+      // Token exists but is expired, clear it
+      clearAuth();
     }
+    
+    setLoading(false);
   }, []);
+
+  // Set up a timer to automatically logout when token expires
+  useEffect(() => {
+    if (isAuthenticated) {
+      const tokenExpiry = localStorage.getItem("tokenExpiry");
+      if (tokenExpiry) {
+        const timeUntilExpiry = parseInt(tokenExpiry) - Date.now();
+        
+        if (timeUntilExpiry > 0) {
+          const timer = setTimeout(() => {
+            clearAuth();
+            // Optionally show a notification that session expired
+            alert("Your session has expired. Please log in again.");
+          }, timeUntilExpiry);
+
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [isAuthenticated]);
 
   const login = async (email, password) => {
     const response = await api.post("/auth/login", {
       email,
       password,
     });
-    // Store the token in localStorage
+    
+    // Calculate expiry time (current time + expires_in seconds * 1000 for milliseconds)
+    const expiryTime = Date.now() + (response.data.expires_in * 1000);
+    
+    // Store the token, user data, and expiry time
     localStorage.setItem("token", response.data.access_token);
     localStorage.setItem("user", JSON.stringify(response.data.user));
-    console.log(response);
-    if (response.user) setUser(response.user);
+    localStorage.setItem("tokenExpiry", expiryTime.toString());
+    
+    setUser(response.data.user);
+    setIsAuthenticated(true);
+    
+    console.log("Login successful:", response.data);
   };
 
   const logout = async () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
+    try {
+      // Try to call logout endpoint if token is still valid
+      if (!isTokenExpired()) {
+        await api.post("/auth/logout");
+      }
+    } catch {
+      // If logout fails, still clear local data
+      console.log("Logout API call failed, but clearing local data");
+    } finally {
+      clearAuth();
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      isAuthenticated, 
+      loading,
+      isTokenExpired 
+    }}>
       {children}
     </AuthContext.Provider>
   );
