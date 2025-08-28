@@ -1,38 +1,43 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import api from "../api/axios";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   // Check session on mount
   useEffect(() => {
-    fetch("/api/me", { credentials: "include" }) // send cookies
-      .then(res => res.json())
-      .then(data => {
-        if (data?.id) setUser(data);
-      })
-      .catch(() => setUser(null));
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+    if (token) {
+      // Try to get username from localStorage (set after login), fallback to 'Profile'
+      const storedUser = localStorage.getItem("user");
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const login = async (email, password) => {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      credentials: "include", // important for cookies
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+    const response = await api.post("/auth/login", {
+      email,
+      password,
     });
-    const data = await res.json();
-    if (res.ok) setUser(data);  
+    // Store the token in localStorage
+    localStorage.setItem("token", response.data.access_token);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    console.log(response);
+    if (response.user) setUser(response.user);
   };
 
   const logout = async () => {
-    await fetch("/api/logout", { method: "POST", credentials: "include" });
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuth: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
