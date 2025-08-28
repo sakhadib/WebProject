@@ -102,7 +102,8 @@ export default function Home() {
                                             ? `http://127.0.0.1:5050/storage/${article.featured_image}`
                                             : null
                                     }
-                                    author_avatar={`https://ui-avatars.com/api/?name=${article.user.username}&background=random&size=32`}
+                                    // author_avatar={`https://ui-avatars.com/api/?name=${article.user.username}&background=random&size=32`}
+                                    author_avatar={article.user.avatar}
                                     slug={article.slug}
                                 />
                             );

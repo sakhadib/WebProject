@@ -45,7 +45,7 @@ class ArticleController extends Controller
             $categoryId = $request->input('category_id');
             $sort = $request->input('sort', 'latest');
 
-            $query = Article::with(['user:id,username,email', 'category:id,name'])
+            $query = Article::with(['user:id,username', 'category:id,name'])
                            ->published();
 
             // Apply filters
@@ -503,7 +503,7 @@ class ArticleController extends Controller
             $search = $request->input('search');
             $categoryId = $request->input('category_id');
 
-            $query = Article::with(['user:id,username,email', 'category:id,name'])
+            $query = Article::with(['user:id,username,email,avatar', 'category:id,name'])
                            ->published();
 
             if ($search) {
