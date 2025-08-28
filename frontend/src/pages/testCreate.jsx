@@ -54,6 +54,19 @@ export default function TestCreate() {
         };
     }, [showStylePopup]);
 
+    // Adjust textarea heights after chunk changes
+    useEffect(() => {
+        setTimeout(() => {
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                if (!textarea.dataset.isHeading) {
+                    textarea.style.height = 'auto';
+                    textarea.style.height = Math.max(60, textarea.scrollHeight) + 'px';
+                }
+            });
+        }, 10);
+    }, [chunks]);
+
     const styles = {
         "h1": "text-3xl font-bold mb-6",
         "h2": "text-2xl font-bold mb-4",
@@ -492,6 +505,35 @@ export default function TestCreate() {
             return `${baseClasses} ${styles[chunk.style]}`;
         };
 
+        // Calculate dynamic height based on content
+        const calculateHeight = () => {
+            if (chunk.style.startsWith('h')) {
+                return '40px';
+            }
+            // For text content, calculate height based on content and line breaks
+            const lineHeight = 24;
+            const minHeight = 60;
+            const padding = 20;
+            
+            // Count actual line breaks and estimate wrapped lines
+            const content = chunk.content || '';
+            const lines = content.split('\n');
+            const maxLineLength = 80; // approximate characters per line
+            
+            let totalLines = 0;
+            lines.forEach(line => {
+                if (line.length === 0) {
+                    totalLines += 1; // empty line
+                } else {
+                    totalLines += Math.ceil(line.length / maxLineLength);
+                }
+            });
+            
+            // Ensure minimum height and add some buffer
+            const calculatedHeight = Math.max(minHeight, totalLines * lineHeight + padding);
+            return `${calculatedHeight}px`;
+        };
+
         return (
             <textarea
                 value={chunk.content}
@@ -499,8 +541,9 @@ export default function TestCreate() {
                 placeholder={`Type your ${chunk.style === 'code' ? 'code' : chunk.style.startsWith('h') ? 'heading' : 'content'} here...`}
                 className={getInputClassName()}
                 rows={chunk.style.startsWith('h') ? 1 : 1}
+                data-is-heading={chunk.style.startsWith('h')}
                 style={{ 
-                    minHeight: chunk.style.startsWith('h') ? '40px' : '60px',
+                    height: calculateHeight(),
                     fontFamily: chunk.style === 'code' ? 'monospace' : 'inherit'
                 }}
                 onKeyDown={(e) => {
@@ -532,7 +575,20 @@ export default function TestCreate() {
                     // Auto-resize textarea for non-heading elements
                     if (!chunk.style.startsWith('h')) {
                         e.target.style.height = 'auto';
-                        e.target.style.height = e.target.scrollHeight + 'px';
+                        e.target.style.height = Math.max(60, e.target.scrollHeight) + 'px';
+                    }
+                }}
+                onFocus={(e) => {
+                    // Ensure proper height when focusing
+                    if (!chunk.style.startsWith('h')) {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = Math.max(60, e.target.scrollHeight) + 'px';
+                    }
+                }}
+                onBlur={(e) => {
+                    // Maintain proper height when losing focus
+                    if (!chunk.style.startsWith('h')) {
+                        e.target.style.height = Math.max(60, e.target.scrollHeight) + 'px';
                     }
                 }}
             />
