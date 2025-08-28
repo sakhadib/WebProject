@@ -11,6 +11,13 @@ export default function DashBoardPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [isDeleting, setIsDeleting] = useState(null);
     const [isUnpublishing, setIsUnpublishing] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showUnpublishModal, setShowUnpublishModal] = useState(false);
+    const [showPublishModal, setShowPublishModal] = useState(false);
+    const [selectedArticle, setSelectedArticle] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isPublishing, setIsPublishing] = useState(null);
 
     useEffect(() => {
         fetchArticles(currentPage);
@@ -35,40 +42,74 @@ export default function DashBoardPage() {
     };
 
     const handleDelete = async (articleId, title) => {
-        if (!window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
-            return;
-        }
+        setSelectedArticle({ id: articleId, title });
+        setShowDeleteModal(true);
+    };
 
+    const confirmDelete = async () => {
         try {
-            setIsDeleting(articleId);
-            await api.delete(`/articles/${articleId}`);
+            setIsDeleting(selectedArticle.id);
+            setShowDeleteModal(false);
+            await api.delete(`/articles/${selectedArticle.id}`);
             // Refresh the articles list
             fetchArticles(currentPage);
-            alert('Article deleted successfully!');
+            setSuccessMessage('Article deleted successfully!');
+            setShowSuccessModal(true);
         } catch (error) {
             console.error('Error deleting article:', error);
-            alert('Failed to delete article. Please try again.');
+            setSuccessMessage('Failed to delete article. Please try again.');
+            setShowSuccessModal(true);
         } finally {
             setIsDeleting(null);
+            setSelectedArticle(null);
         }
     };
 
     const handleUnpublish = async (articleId, title) => {
-        if (!window.confirm(`Are you sure you want to unpublish "${title}"?`)) {
-            return;
-        }
+        setSelectedArticle({ id: articleId, title });
+        setShowUnpublishModal(true);
+    };
 
+    const confirmUnpublish = async () => {
         try {
-            setIsUnpublishing(articleId);
-            await api.patch(`/articles/${articleId}/draft`);
+            setIsUnpublishing(selectedArticle.id);
+            setShowUnpublishModal(false);
+            await api.patch(`/articles/${selectedArticle.id}/draft`);
             // Refresh the articles list
             fetchArticles(currentPage);
-            alert('Article unpublished successfully!');
+            setSuccessMessage('Article unpublished successfully!');
+            setShowSuccessModal(true);
         } catch (error) {
             console.error('Error unpublishing article:', error);
-            alert('Failed to unpublish article. Please try again.');
+            setSuccessMessage('Failed to unpublish article. Please try again.');
+            setShowSuccessModal(true);
         } finally {
             setIsUnpublishing(null);
+            setSelectedArticle(null);
+        }
+    };
+
+    const handlePublish = async (articleId, title) => {
+        setSelectedArticle({ id: articleId, title });
+        setShowPublishModal(true);
+    };
+
+    const confirmPublish = async () => {
+        try {
+            setIsPublishing(selectedArticle.id);
+            setShowPublishModal(false);
+            await api.patch(`/articles/${selectedArticle.id}/publish`);
+            // Refresh the articles list
+            fetchArticles(currentPage);
+            setSuccessMessage('Article published successfully!');
+            setShowSuccessModal(true);
+        } catch (error) {
+            console.error('Error publishing article:', error);
+            setSuccessMessage('Failed to publish article. Please try again.');
+            setShowSuccessModal(true);
+        } finally {
+            setIsPublishing(null);
+            setSelectedArticle(null);
         }
     };
 
@@ -307,6 +348,31 @@ export default function DashBoardPage() {
                                                         Edit
                                                     </button>
                                                     
+                                                    {article.status === 'draft' && (
+                                                        <button
+                                                            onClick={() => handlePublish(article.id, article.title)}
+                                                            disabled={isPublishing === article.id}
+                                                            className="inline-flex items-center px-3 py-1.5 border border-green-300 shadow-sm text-xs font-medium rounded text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {isPublishing === article.id ? (
+                                                                <>
+                                                                    <svg className="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
+                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                    </svg>
+                                                                    Publishing
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>
+                                                                    Publish
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                    
                                                     {article.status === 'published' && (
                                                         <button
                                                             onClick={() => handleUnpublish(article.id, article.title)}
@@ -436,6 +502,154 @@ export default function DashBoardPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Delete Confirmation Modal */}
+                {showDeleteModal && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                        <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div className="mt-3 text-center">
+                                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                                    <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Delete Article</h3>
+                                <div className="mt-2 px-7 py-3">
+                                    <p className="text-sm text-gray-500">
+                                        Are you sure you want to delete "<span className="font-medium">{selectedArticle?.title}</span>"? This action cannot be undone.
+                                    </p>
+                                </div>
+                                <div className="items-center px-4 py-3">
+                                    <button
+                                        onClick={confirmDelete}
+                                        className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 mb-2"
+                                    >
+                                        Delete Article
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowDeleteModal(false);
+                                            setSelectedArticle(null);
+                                        }}
+                                        className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Publish Confirmation Modal */}
+                {showPublishModal && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                        <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div className="mt-3 text-center">
+                                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                                    <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Publish Article</h3>
+                                <div className="mt-2 px-7 py-3">
+                                    <p className="text-sm text-gray-500">
+                                        Are you sure you want to publish "<span className="font-medium">{selectedArticle?.title}</span>"? It will be visible to all readers.
+                                    </p>
+                                </div>
+                                <div className="items-center px-4 py-3">
+                                    <button
+                                        onClick={confirmPublish}
+                                        className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 mb-2"
+                                    >
+                                        Publish Article
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowPublishModal(false);
+                                            setSelectedArticle(null);
+                                        }}
+                                        className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Unpublish Confirmation Modal */}
+                {showUnpublishModal && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                        <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div className="mt-3 text-center">
+                                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
+                                    <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Unpublish Article</h3>
+                                <div className="mt-2 px-7 py-3">
+                                    <p className="text-sm text-gray-500">
+                                        Are you sure you want to unpublish "<span className="font-medium">{selectedArticle?.title}</span>"? It will be moved to drafts.
+                                    </p>
+                                </div>
+                                <div className="items-center px-4 py-3">
+                                    <button
+                                        onClick={confirmUnpublish}
+                                        className="px-4 py-2 bg-yellow-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-300 mb-2"
+                                    >
+                                        Unpublish Article
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowUnpublishModal(false);
+                                            setSelectedArticle(null);
+                                        }}
+                                        className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Success Modal */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                        <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div className="mt-3 text-center">
+                                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                                    <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">
+                                    {successMessage.includes('Failed') ? 'Error' : 'Success'}
+                                </h3>
+                                <div className="mt-2 px-7 py-3">
+                                    <p className="text-sm text-gray-500">
+                                        {successMessage}
+                                    </p>
+                                </div>
+                                <div className="items-center px-4 py-3">
+                                    <button
+                                        onClick={() => {
+                                            setShowSuccessModal(false);
+                                            setSuccessMessage('');
+                                        }}
+                                        className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                    >
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
