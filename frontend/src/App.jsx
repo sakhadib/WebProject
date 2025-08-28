@@ -15,6 +15,7 @@ import BlogPost from './pages/BlogDetails'
 import Footer from './components/footer'
 import Navbar from './components/navbar'
 import TopicShow from './pages/topicShow'
+import DashBoardPage from './pages/dashboard'
 
 export default function App() {
   return (
@@ -32,8 +33,10 @@ export default function App() {
         <Route path="/post/:slug" element={<PostDetails />} />
         <Route path="/article/:slug" element={<PostDetails />} />
 
+        <Route path="/dashboard" element={<DashBoardPage />}/>
+
         <Route path="/write" element={<TestCreate />} />
-        <Route path="/blog/:id" element={<BlogPost />} />
+        <Route path="/create" element={<TestCreate />} />
         {/* Add more routes as needed */}
       </Routes>
       <Footer />

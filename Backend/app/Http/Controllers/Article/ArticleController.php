@@ -345,8 +345,9 @@ class ArticleController extends Controller
             $status = $request->input('status');
             $search = $request->input('search');
 
-            $query = Article::with(['category:id,name'])
-                           ->where('user_id', $user->id);
+            $query = Article::with(['category:id,name', 'user:id,username,email,avatar'])
+                            ->withCount(['views', 'comments'])
+                            ->where('user_id', $user->id);
 
             if ($status) {
                 $query->byStatus($status);

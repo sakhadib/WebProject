@@ -82,6 +82,12 @@ export default function Navbar() {
                   Write
                 </Link>
                 <Link
+                  to="/dashboard"
+                  className="text-gray-600 hover:text-black transition-colors duration-200"
+                >
+                  Dashboard
+                </Link>
+                <Link
                   to={`/profile/${username}`}
                   className="text-gray-600 hover:text-black transition-colors duration-200"
                 >
