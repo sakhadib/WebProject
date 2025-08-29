@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../api/axios";
+import { useRevalidator } from "react-router-dom";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -23,22 +24,31 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false);
   };
 
-  // Check session on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    
-    if (token && !isTokenExpired()) {
-      setIsAuthenticated(true);
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const checkSession = async () => {
+      const token = localStorage.getItem("token");
+
+      if (token && !isTokenExpired()) {
+        try {
+          const response = await api.post("/auth/me");
+          const userData = response.data; 
+          
+          if (userData) {
+            setIsAuthenticated(true);
+            setUser(userData.user);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          clearAuth();
+        }
+      } else if (token && isTokenExpired()) {
+        clearAuth();
       }
-    } else if (token && isTokenExpired()) {
-      // Token exists but is expired, clear it
-      clearAuth();
-    }
-    
-    setLoading(false);
+
+      setLoading(false);
+    };
+
+    checkSession();
   }, []);
 
   // Set up a timer to automatically logout when token expires
@@ -47,7 +57,7 @@ export function AuthProvider({ children }) {
       const tokenExpiry = localStorage.getItem("tokenExpiry");
       if (tokenExpiry) {
         const timeUntilExpiry = parseInt(tokenExpiry) - Date.now();
-        
+
         if (timeUntilExpiry > 0) {
           const timer = setTimeout(() => {
             clearAuth();
@@ -66,18 +76,18 @@ export function AuthProvider({ children }) {
       email,
       password,
     });
-    
+
     // Calculate expiry time (current time + expires_in seconds * 1000 for milliseconds)
-    const expiryTime = Date.now() + (response.data.expires_in * 1000);
-    
+    const expiryTime = Date.now() + response.data.expires_in * 1000;
+
     // Store the token, user data, and expiry time
     localStorage.setItem("token", response.data.access_token);
     localStorage.setItem("user", JSON.stringify(response.data.user));
     localStorage.setItem("tokenExpiry", expiryTime.toString());
-    
+
     setUser(response.data.user);
     setIsAuthenticated(true);
-    
+
     console.log("Login successful:", response.data);
   };
 
@@ -115,15 +125,17 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      refreshUser,
-      isAuthenticated, 
-      loading,
-      isTokenExpired 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        refreshUser,
+        isAuthenticated,
+        loading,
+        isTokenExpired,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

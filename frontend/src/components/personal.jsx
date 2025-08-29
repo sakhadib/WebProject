@@ -15,8 +15,9 @@ export default function ProfilePersonal({
     useEffect(() => {
         const fetchPersonalInfo = async () => {
             try {
-                const response = await api.get(`/profile/adibsakhawat`);
+                const response = await api.get(`/auth/me`);
                 setPersonal(response.data);
+                
             } catch (error) {
                 console.error("Error fetching personal info:", error);
             }
