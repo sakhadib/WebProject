@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,5 +46,26 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Handle unauthenticated user.
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        // Always return JSON response for API routes
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'error' => 'Unauthenticated',
+                'message' => 'Authentication required to access this resource'
+            ], 401);
+        }
+
+        // For web routes, you could redirect to a login page
+        // For now, return JSON since this is primarily an API
+        return response()->json([
+            'error' => 'Unauthenticated',
+            'message' => 'Authentication required to access this resource'
+        ], 401);
     }
 }
