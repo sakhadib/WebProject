@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medium Clone</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <nav class="flex justify-between items-center">
+        <div class="flex gap-4 p-5 items-center">
+            <i class="fa-solid fa-bars"></i>
+            <h1>Medium</h1>
+            <label class="input">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2.5"
+                fill="none"
+                stroke="currentColor"
+                >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+                </g>
+            </svg>
+            <input type="search" class="grow" placeholder="Search" />
+            </label>
+        </div>
+        <div class="p-5">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <i class="fa-regular fa-bell"></i>
+        </div>
+    </nav>
+
+    <main class="flex justify-between">
+        <div id="part-1" class="max-w-[200px] border-2 border-red-500 p-5">
+            <h2>Home, Library, Profile, Stories, Stats</h2>
+            <div>
+                <h2><span><i class="fa-regular fa-house"></i></span> Home</h2>
+
+            </div>
+            <hr>
+            <h2>Following </h2><span><i class="fa-light fa-greater-than"></i></span>
+            <div class="flex justify-between">
+                <span><i class="fa-regular fa-user"></i></span>
+                <div>
+                    <p>Discover more writers and publications to follow</p>
+                    <a href="#" class="underline hover:no-underline">See suggestions</i></a>
+                </div>
+            </div>
+        </div>
+
+        <div id="part-2" class="border-2 border-green-500">
+            <div class="flex justify-around">
+                <h1>Nihal</h1> <span><i class="fa-solid fa-ellipsis"></i></span>
+            </div>
+
+            <!-- <div role="tablist" class="tabs tabs-border">
+                <a role="tab" class="tab">Tab 1</a>
+                <a role="tab" class="tab tab-active">Tab 2</a>
+                <a role="tab" class="tab">Tab 3</a>
+            </div> -->
+
+            <!-- name of each tab group should be unique -->
+            <div class="tabs tabs-border">
+            <input type="radio" name="my_tabs" id="tab-home" class="tab" aria-label="Home"/>
+            <div class="tab-content border-base-300 bg-base-100 p-10">
+                <div class="card card-border bg-base-100 w-96">
+                    <div class="card-body">
+                        <h2 class="card-title">Card Title</h2>
+                        <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+                        <div class="card-actions justify-end">
+                        <button class="btn btn-primary">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-border bg-base-100 w-96">
+                    <div class="card-body">
+                        <h2 class="card-title">Card Title</h2>
+                        <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+                        <div class="card-actions justify-end">
+                        <button class="btn btn-primary">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="radio" name="my_tabs" id="tab-about" class="tab" aria-label="About" checked="checked" />
+            <div class="tab-content border-base-300 bg-base-100 p-10">About content</div>
+            <!-- <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 3" />
+            <div class="tab-content border-base-300 bg-base-100 p-10">Tab content 3</div> -->
+            </div>
+        </div>
+
+        <div id="part-3" class="border-2 border-red-500">
+            <div class="flex-grow">
+                <div class="rounded-full h-24 w-24 bg-blue-500"><img src="https://images.icon-icons.com/3041/PNG/512/medium_logo_icon_189223.png" alt="" class="h-full w-full object-cover"></div>
+                <h2 class="text-[24px] font-semibold">Nihal</h2>
+                <a class="link link-success">Click me</a>
+            </div>
+            <!-- <div>
+                <span>Help</span> <span>Status</span> <span>About</span> <span>Career</span> <span>Press</span> <span>Blog</span> <span>Privacy</span> <span>Rules</span> <span>Terms</span> <span>Text to speech</span>
+            </div> -->
+              <!-- Footer Section -->
+            <!-- <div class="p-4 text-center border-t"> -->
+            <div class="p-4 text-xs text-gray-500 flex flex-wrap gap-x-2 justify-center border-t"></div>
+                <span class="px-2">Help</span>
+                <span class="px-2">Status</span>
+                <span class="px-2">About</span>
+                <span class="px-2">Career</span>
+                <span class="px-2">Press</span>
+                <span class="px-2">Blog</span>
+                <span class="px-2">Privacy</span>
+                <span class="px-2">Rules</span>
+                <span class="px-2">Terms</span>
+                <span class="px-2">Text to speech</span>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
