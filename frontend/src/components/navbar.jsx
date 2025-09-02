@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { ArrowDown } from "lucide-react";
 export default function Navbar() {
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <a className="text-2xl font-bold text-black" href="/">
-              Reko
+              <ArrowDown />
             </a>
           </div>
           <div className="flex-1 max-w-lg mx-8">
