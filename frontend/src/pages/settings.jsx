@@ -32,6 +32,8 @@ export default function Settings() {
 
     // Fetch current user data
     useEffect(() => {
+        console.log(authUser);
+        
         const loadUserData = () => {
             if (authUser) {
                 setFormData({
@@ -54,6 +56,8 @@ export default function Settings() {
                         setLoading(true);
                         const response = await api.post('/auth/me');
                         const userData = response.data;
+                        console.log(userData);
+                        
                         
                         setFormData({
                             first_name: userData.first_name || '',

@@ -44,7 +44,8 @@ export default function Profile() {
             try {
                 setLoadingUser(true);
                 const userResponse = await api.get(`/user/${username}`);
-                setUser(userResponse.data);
+                setUser(userResponse.data); 
+                
             } catch (error) {
                 console.error("Error fetching user data:", error);
             } finally {

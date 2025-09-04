@@ -15,6 +15,7 @@ export default function Home() {
                 setLoading(true); // start loading
                 const response = await api.get("/articles/published");
                 setArticles(response.data.data.articles);
+                
             } catch (error) {
                 console.error("Error fetching top publications:", error);
             } finally {
