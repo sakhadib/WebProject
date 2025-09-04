@@ -21,10 +21,10 @@ import DashBoardPage from './pages/dashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 
 
-// import About from './pages/About'
-// import TermsOfService from './pages/TermsOfService'
-// import PrivacePolicy from './pages/PrivacePolicy'
-// import HelpCenter from './pages/HelpCenter'
+import About from './pages/About'
+import TermsOfService from './pages/TermsOfService'
+import PrivacePolicy from './pages/PrivacePolicy'
+import HelpCenter from './pages/HelpCenter'
 
 export default function App() {
   return (
@@ -46,10 +46,10 @@ export default function App() {
         <Route path="/post/:slug" element={<PostDetails />} />
         <Route path="/article/:slug" element={<PostDetails />} />
 
-        {/* <Route path="/help-center" element={<HelpCenter />} /> 
+        <Route path="/help-center" element={<HelpCenter />} /> 
         <Route path="/privacy-policy" element={<PrivacePolicy />} />
         <Route path="/terms-of-services" element={<TermsOfService />} />
-        <Route path="/about" element={<About />} /> */}
+        <Route path="/about" element={<About />} />
 
         <Route path="/dashboard" element={
           <ProtectedRoute>
