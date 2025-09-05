@@ -196,7 +196,7 @@ export default function Signup() {
                     </div>
 
 
-                    <div class="mt-6">
+                    {/* <div class="mt-6">
                         <button
                             type="button"
                             class="w-full inline-flex justify-center py-3 px-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors duration-200"
@@ -209,7 +209,7 @@ export default function Signup() {
                             </svg>
                             Continue with Google
                         </button>
-                    </div>
+                    </div> */}
 
 
                     <div className="text-center mt-6">
